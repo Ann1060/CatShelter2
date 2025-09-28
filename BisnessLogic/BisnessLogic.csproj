@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{09875E91-3C66-40A0-A9EA-CAB1715F1791}</ProjectGuid>
+    <ProjectGuid>{026809EF-68B6-40C0-B2A4-8EE983C45682}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CatEntity</RootNamespace>
-    <AssemblyName>CatEntity</AssemblyName>
+    <RootNamespace>BisnessLogic</RootNamespace>
+    <AssemblyName>BisnessLogic</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -66,12 +66,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cat.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CatEntity\CatEntity.csproj">
+      <Project>{09875e91-3c66-40a0-a9ea-cab1715f1791}</Project>
+      <Name>CatEntity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatShelterDaL\CatShelterDaL.csproj">
+      <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
+      <Name>CatShelterDaL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
