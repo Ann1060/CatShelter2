@@ -98,7 +98,35 @@ namespace CatShelterDaL
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                return connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM {_tableName}");
+
+                string tableName = typeof(T).Name;
+                string sql = $"SELECT COUNT(*) FROM {tableName}";
+
+                return connection.ExecuteScalar<int>(sql);
+            }
+        }
+
+        public List<T> GetPaged(int pageNumber, int pageSize)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                // Получаем имя таблицы (предполагаем, что имя таблицы совпадает с именем типа)
+                string tableName = typeof(T).Name;
+
+                // SQL запрос для пагинации
+                string sql = $@"
+                SELECT * FROM {tableName}
+                ORDER BY Id
+                OFFSET @Offset ROWS
+                FETCH NEXT @PageSize ROWS ONLY";
+
+                // Вычисляем смещение
+                int offset = (pageNumber - 1) * pageSize;
+
+                // Выполняем запрос
+                return connection.Query<T>(sql, new { Offset = offset, PageSize = pageSize }).ToList();
             }
         }
 

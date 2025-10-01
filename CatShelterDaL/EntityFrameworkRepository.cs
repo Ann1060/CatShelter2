@@ -60,6 +60,15 @@ namespace CatShelterDaL
         {
             return _context.Set<T>().Count();
         }
+        public List<T> GetPaged(int pageNumber, int pageSize)
+        {
+            return _context.Set<T>()
+                .OrderBy(x => x.Id) // или любое другое поле для сортировки
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+        
         public void Dispose()
         {
             Dispose(true);

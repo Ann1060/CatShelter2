@@ -15,5 +15,6 @@ namespace CatShelterDaL
         void Update(T item);
         void Delete(int id);
         int GetTotal();
+        List<T> GetPaged(int pageNumber, int pageSize);
     }
 }
