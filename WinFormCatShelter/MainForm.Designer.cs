@@ -27,6 +27,12 @@
         private System.Windows.Forms.Button buttonRefresh;
         private System.Windows.Forms.Label labelTotal;
 
+        private System.Windows.Forms.Button buttonPrev;
+        private System.Windows.Forms.Button buttonNext;
+        private System.Windows.Forms.ComboBox comboBoxPageSize;
+        private System.Windows.Forms.Label labelPageInfo;
+        private System.Windows.Forms.Label labelPageSize;
+
         private void InitializeComponent()
         {
             this.dataGridViewCats = new System.Windows.Forms.DataGridView();
@@ -38,6 +44,12 @@
             this.labelTotal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCats)).BeginInit();
             this.SuspendLayout();
+            //новое:
+            this.buttonPrev = new System.Windows.Forms.Button();
+            this.buttonNext = new System.Windows.Forms.Button();
+            this.comboBoxPageSize = new System.Windows.Forms.ComboBox();
+            this.labelPageInfo = new System.Windows.Forms.Label();
+            this.labelPageSize = new System.Windows.Forms.Label();
 
             // dataGridViewCats
             this.dataGridViewCats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -103,10 +115,77 @@
             this.labelTotal.TabIndex = 6;
             this.labelTotal.Text = "Всего котов: 0";
 
+            // 
+            // buttonPrev
+            // 
+            this.buttonPrev.Enabled = false;
+            this.buttonPrev.Location = new System.Drawing.Point(430, 350);
+            this.buttonPrev.Name = "buttonPrev";
+            this.buttonPrev.Size = new System.Drawing.Size(80, 25);
+            this.buttonPrev.TabIndex = 7;
+            this.buttonPrev.Text = "← Назад";
+            this.buttonPrev.UseVisualStyleBackColor = true;
+            this.buttonPrev.Click += new System.EventHandler(this.ButtonPrev_Click);
+
+            // 
+            // buttonNext
+            // 
+            this.buttonNext.Enabled = false;
+            this.buttonNext.Location = new System.Drawing.Point(620, 350);
+            this.buttonNext.Name = "buttonNext";
+            this.buttonNext.Size = new System.Drawing.Size(80, 25);
+            this.buttonNext.TabIndex = 8;
+            this.buttonNext.Text = "Вперед →";
+            this.buttonNext.UseVisualStyleBackColor = true;
+            this.buttonNext.Click += new System.EventHandler(this.ButtonNext_Click);
+
+            // 
+            // comboBoxPageSize
+            // 
+            this.comboBoxPageSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxPageSize.FormattingEnabled = true;
+            this.comboBoxPageSize.Items.AddRange(new object[] {
+            "5",
+            "10",
+            "20",
+            "50"});
+            this.comboBoxPageSize.Location = new System.Drawing.Point(350, 352);
+            this.comboBoxPageSize.Name = "comboBoxPageSize";
+            this.comboBoxPageSize.Size = new System.Drawing.Size(80, 21);
+            this.comboBoxPageSize.TabIndex = 9;
+            this.comboBoxPageSize.SelectedIndexChanged += new System.EventHandler(this.ComboBoxPageSize_SelectedIndexChanged);
+
+            // 
+            // labelPageInfo
+            // 
+            this.labelPageInfo.AutoSize = true;
+            this.labelPageInfo.Location = new System.Drawing.Point(520, 357);
+            this.labelPageInfo.Name = "labelPageInfo";
+            this.labelPageInfo.Size = new System.Drawing.Size(85, 13);
+            this.labelPageInfo.TabIndex = 10;
+            this.labelPageInfo.Text = "Страница 1 из 1";
+
+            // 
+            // labelPageSize
+            // 
+            this.labelPageSize.AutoSize = true;
+            this.labelPageSize.Location = new System.Drawing.Point(260, 357);
+            this.labelPageSize.Name = "labelPageSize";
+            this.labelPageSize.Size = new System.Drawing.Size(84, 13);
+            this.labelPageSize.TabIndex = 11;
+            this.labelPageSize.Text = "На странице:";
+
             // MainForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 361);
+            this.ClientSize = new System.Drawing.Size(700, 461);
+            //изменения:
+            this.Controls.Add(this.labelPageSize);
+            this.Controls.Add(this.labelPageInfo);
+            this.Controls.Add(this.comboBoxPageSize);
+            this.Controls.Add(this.buttonNext);
+            this.Controls.Add(this.buttonPrev);
+            //уже были:
             this.Controls.Add(this.labelTotal);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.buttonStats);
@@ -119,6 +198,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCats)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
+
         }
         #region Код, автоматически созданный конструктором форм Windows 
         #endregion

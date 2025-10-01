@@ -65,5 +65,10 @@ namespace BisnessLogic
         {
             return repository.GetTotal();
         }
+
+        public List<Cat> GetPagedCats(int pageNumber, int pageSize)
+        {
+            return repository.GetPaged(pageNumber, pageSize);
+        }
     }
 }

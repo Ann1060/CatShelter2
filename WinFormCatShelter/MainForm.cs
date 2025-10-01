@@ -16,14 +16,19 @@ namespace WinFormCatShelter
     {
         private System.Windows.Forms.Timer refreshTimer;
         private CatService catService = new CatService();
-        private BindingList<Cat> catsBindingList;
+        //private BindingList<Cat> catsBindingList;
 
+        private int currentPage = 1;
+        private int pageSize = 5; // Котов на странице
+        private int totalPages = 1;
         public MainForm()
         {
             InitializeComponent();
             InitializeDataGridView();
             LoadCats();
             InitializeTimer();
+
+            comboBoxPageSize.SelectedItem = pageSize.ToString();
         }
 
         private void InitializeTimer()
@@ -43,63 +48,41 @@ namespace WinFormCatShelter
 
         private void LoadCats()
         {
-            // Сохраняем состояние ДО обновления
-            int selectedCatId = -1;
-            int currentRowIndex = -1;
-            int currentColumnIndex = -1;
-
-            if (dataGridViewCats.SelectedRows.Count > 0 && dataGridViewCats.SelectedRows[0].DataBoundItem is Cat selectedCat)
+            try
             {
-                selectedCatId = selectedCat.Id;
-            }
+                // Получаем данные с пагинацией
+                var cats = catService.GetPagedCats(currentPage, pageSize);
+                var totalCount = catService.GetTotalCats();
 
-            // Сохраняем текущую ячейку (для стрелочки)
-            if (dataGridViewCats.CurrentCell != null)
+                // Обновляем DataGridView
+                dataGridViewCats.DataSource = cats;
+
+                // Обновляем информацию о пагинации
+                UpdatePaginationInfo(totalCount);
+
+                // Обновляем общее количество котов
+                labelTotal.Text = $"Всего котов: {totalCount}";
+            }
+            catch (Exception ex)
             {
-                currentRowIndex = dataGridViewCats.CurrentCell.RowIndex;
-                currentColumnIndex = dataGridViewCats.CurrentCell.ColumnIndex;
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
 
-            int firstVisibleRow = dataGridViewCats.FirstDisplayedScrollingRowIndex;
 
-            // Обновляем данные
-            var cats = catService.GetAllCats();
-            catsBindingList = new BindingList<Cat>(cats ?? new List<Cat>());
-            dataGridViewCats.DataSource = catsBindingList;
 
-            // Восстанавливаем позицию прокрутки
-            if (firstVisibleRow >= 0 && firstVisibleRow < dataGridViewCats.RowCount)
-            {
-                dataGridViewCats.FirstDisplayedScrollingRowIndex = firstVisibleRow;
-            }
+        private void UpdatePaginationInfo(int totalCount)
+        {
+            // Вычисляем общее количество страниц
+            totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-            // Восстанавливаем выделение и текущую ячейку
-            if (selectedCatId != -1)
-            {
-                dataGridViewCats.ClearSelection();
+            // Обновляем информацию о странице
+            labelPageInfo.Text = $"Страница {currentPage} из {totalPages}";
 
-                for (int i = 0; i < dataGridViewCats.Rows.Count; i++)
-                {
-                    if (dataGridViewCats.Rows[i].DataBoundItem is Cat cat && cat.Id == selectedCatId)
-                    {
-                        // Выделяем строку
-                        dataGridViewCats.Rows[i].Selected = true;
-
-                        // Восстанавливаем текущую ячейку (стрелочку)
-                        if (currentColumnIndex >= 0 && currentColumnIndex < dataGridViewCats.Columns.Count)
-                        {
-                            dataGridViewCats.CurrentCell = dataGridViewCats.Rows[i].Cells[currentColumnIndex];
-                        }
-                        else
-                        {
-                            dataGridViewCats.CurrentCell = dataGridViewCats.Rows[i].Cells[0]; // Первая колонка
-                        }
-                        break;
-                    }
-                }
-            }
-
-            labelTotal.Text = $"Всего котов: {cats?.Count ?? 0}";
+            // Обновляем состояние кнопок
+            buttonPrev.Enabled = currentPage > 1;
+            buttonNext.Enabled = currentPage < totalPages;
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)
@@ -150,28 +133,44 @@ namespace WinFormCatShelter
         {
             if (dataGridViewCats.SelectedRows.Count > 0)
             {
-                var selectedCat = (Cat)dataGridViewCats.SelectedRows[0].DataBoundItem;
-
-                if (MessageBox.Show($"Удалить кота {selectedCat.Name}?",
-                    "Подтверждение удаления",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question) == DialogResult.Yes)
+                try
                 {
-                    try
+                    var selectedCat = dataGridViewCats.SelectedRows[0].DataBoundItem as Cat;
+                    if (selectedCat != null)
                     {
-                        catService.DeleteCat(selectedCat.Id);
-                        LoadCats(); // Перезагружаем данные
-                        MessageBox.Show("Кот удален!");
+                        var result = MessageBox.Show($"Вы уверены, что хотите удалить кота {selectedCat.Name}?",
+                            "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                        if (result == DialogResult.Yes)
+                        {
+                            catService.DeleteCat(selectedCat.Id);
+
+                            // Проверяем, не остались ли мы на пустой странице после удаления
+                            var totalCount = catService.GetTotalCats();
+                            var maxPageForCurrentSize = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                            if (currentPage > maxPageForCurrentSize && maxPageForCurrentSize > 0)
+                            {
+                                currentPage = maxPageForCurrentSize;
+                            }
+
+                            LoadCats();
+
+                            MessageBox.Show("Кот успешно удален", "Успех",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка: {ex.Message}");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Выберите кота для удаления");
+                MessageBox.Show("Выберите кота для удаления", "Информация",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -201,6 +200,47 @@ namespace WinFormCatShelter
             if (e.RowIndex >= 0)
             {
                 buttonEdit_Click(sender, e);
+            }
+        }
+
+        private void ButtonPrev_Click(object sender, EventArgs e)
+        {
+            if (currentPage > 1)
+            {
+                currentPage--;
+                LoadCats();
+            }
+        }
+
+        private void ButtonNext_Click(object sender, EventArgs e)
+        {
+            if (currentPage < totalPages)
+            {
+                currentPage++;
+                LoadCats();
+            }
+        }
+
+        private void ComboBoxPageSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxPageSize.SelectedItem != null)
+            {
+                // Сохраняем текущую позицию прокрутки
+                var firstDisplayedScrollingRowIndex = dataGridViewCats.FirstDisplayedScrollingRowIndex;
+
+                // Обновляем размер страницы
+                pageSize = int.Parse(comboBoxPageSize.SelectedItem.ToString());
+                currentPage = 1; // Сбрасываем на первую страницу
+
+                // Перезагружаем данные
+                LoadCats();
+
+                // Восстанавливаем позицию прокрутки (если возможно)
+                if (firstDisplayedScrollingRowIndex >= 0 && firstDisplayedScrollingRowIndex < dataGridViewCats.Rows.Count)
+                {
+                    dataGridViewCats.FirstDisplayedScrollingRowIndex =
+                        Math.Min(firstDisplayedScrollingRowIndex, dataGridViewCats.Rows.Count - 1);
+                }
             }
         }
     }
