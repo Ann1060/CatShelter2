@@ -16,7 +16,7 @@ namespace WinFormCatShelter
     {
         private System.Windows.Forms.Timer refreshTimer;
         private CatService catService = new CatService();
-        //private BindingList<Cat> catsBindingList;
+        private BindingList<Cat> catsBindingList;
 
         private int currentPage = 1;
         private int pageSize = 5; // Котов на странице
@@ -48,20 +48,74 @@ namespace WinFormCatShelter
 
         private void LoadCats()
         {
+            // Сохраняем состояние ДО обновления
+            int selectedCatId = -1;
+            int currentRowIndex = -1;
+            int currentColumnIndex = -1;
+
+            if (dataGridViewCats.SelectedRows.Count > 0 && dataGridViewCats.SelectedRows[0].DataBoundItem is Cat selectedCat)
+            {
+                selectedCatId = selectedCat.Id;
+            }
+
+            // Сохраняем текущую ячейку (для стрелочки)
+            if (dataGridViewCats.CurrentCell != null)
+            {
+                currentRowIndex = dataGridViewCats.CurrentCell.RowIndex;
+                currentColumnIndex = dataGridViewCats.CurrentCell.ColumnIndex;
+            }
+
+            int firstVisibleRow = dataGridViewCats.FirstDisplayedScrollingRowIndex;
+
             try
             {
+                // ОБНОВЛЕННЫЙ КОД С ПАГИНАЦИЕЙ:
                 // Получаем данные с пагинацией
                 var cats = catService.GetPagedCats(currentPage, pageSize);
                 var totalCount = catService.GetTotalCats();
 
                 // Обновляем DataGridView
-                dataGridViewCats.DataSource = cats;
+                catsBindingList = new BindingList<Cat>(cats ?? new List<Cat>());
+                dataGridViewCats.DataSource = catsBindingList;
 
-                // Обновляем информацию о пагинации
+                // Восстанавливаем позицию прокрутки
+                if (firstVisibleRow >= 0 && firstVisibleRow < dataGridViewCats.RowCount)
+                {
+                    dataGridViewCats.FirstDisplayedScrollingRowIndex = firstVisibleRow;
+                }
+
+                // Восстанавливаем выделение и текущую ячейку
+                if (selectedCatId != -1)
+                {
+                    dataGridViewCats.ClearSelection();
+
+                    for (int i = 0; i < dataGridViewCats.Rows.Count; i++)
+                    {
+                        if (dataGridViewCats.Rows[i].DataBoundItem is Cat cat && cat.Id == selectedCatId)
+                        {
+                            // Выделяем строку
+                            dataGridViewCats.Rows[i].Selected = true;
+
+                            // Восстанавливаем текущую ячейку (стрелочку)
+                            if (currentColumnIndex >= 0 && currentColumnIndex < dataGridViewCats.Columns.Count)
+                            {
+                                dataGridViewCats.CurrentCell = dataGridViewCats.Rows[i].Cells[currentColumnIndex];
+                            }
+                            else
+                            {
+                                dataGridViewCats.CurrentCell = dataGridViewCats.Rows[i].Cells[0]; // Первая колонка
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // ОБНОВЛЯЕМ ИНФОРМАЦИЮ О ПАГИНАЦИИ
                 UpdatePaginationInfo(totalCount);
 
                 // Обновляем общее количество котов
                 labelTotal.Text = $"Всего котов: {totalCount}";
+
             }
             catch (Exception ex)
             {
@@ -70,12 +124,12 @@ namespace WinFormCatShelter
             }
         }
 
-
-
+        // Метод для обновления информации о пагинации
         private void UpdatePaginationInfo(int totalCount)
         {
             // Вычисляем общее количество страниц
             totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            if (totalPages == 0) totalPages = 1;
 
             // Обновляем информацию о странице
             labelPageInfo.Text = $"Страница {currentPage} из {totalPages}";
