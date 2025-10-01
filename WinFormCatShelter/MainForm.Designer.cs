@@ -145,6 +145,7 @@
             this.comboBoxPageSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxPageSize.FormattingEnabled = true;
             this.comboBoxPageSize.Items.AddRange(new object[] {
+            "1",
             "5",
             "10",
             "20",
