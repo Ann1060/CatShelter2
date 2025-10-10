@@ -235,12 +235,37 @@ namespace WinFormCatShelter
 
             foreach (var item in stats)
             {
-                message += $"{item.Key}: {item.Value} котов\n";
+                string catWord = GetCorrectCatWord(item.Value);
+                message += $"{item.Key}: {item.Value} {catWord}\n";
             }
 
             message += $"\nВсего котов: {catService.GetTotalCats()}";
 
             MessageBox.Show(message, "Статистика приюта");
+        }
+
+        private string GetCorrectCatWord(int count)
+        {
+            int lastDigit = count % 10;
+            int lastTwoDigits = count % 100;
+
+            // Исключения для чисел 11-14
+            if (lastTwoDigits >= 11 && lastTwoDigits <= 14)
+            {
+                return "котов";
+            }
+
+            switch (lastDigit)
+            {
+                case 1:
+                    return "кот";
+                case 2:
+                case 3:
+                case 4:
+                    return "кота";
+                default:
+                    return "котов";
+            }
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)
