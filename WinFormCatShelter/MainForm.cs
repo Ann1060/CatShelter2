@@ -69,7 +69,7 @@ namespace WinFormCatShelter
 
             try
             {
-                // ОБНОВЛЕННЫЙ КОД С ПАГИНАЦИЕЙ:
+                // ОБНОВЛЕННЫЙ КОД С ПАГИНАЦИЕЙ
                 // Получаем данные с пагинацией
                 var cats = catService.GetPagedCats(currentPage, pageSize);
                 var totalCount = catService.GetTotalCats();
