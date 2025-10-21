@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CatEntity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 namespace CatShelterDaL
 {
     public interface IRepository<T> : IDisposable
-        where T : class
+        where T : class, IDomainObject
     {
         List<T> GetAll();
         T GetById(int id);

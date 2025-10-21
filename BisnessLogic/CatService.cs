@@ -10,7 +10,12 @@ namespace BisnessLogic
 {
     public class CatService
     {
-        IRepository<Cat> repository = new EntityFrameworkRepository<Cat>();
+        private readonly IRepository<Cat> repository;
+        public CatService(IRepository<Cat> _repository)
+        {
+            repository = _repository;
+        }
+
 
         // Добавить кота
         public void AddCat(Cat cat)
