@@ -1,5 +1,6 @@
 ﻿using BisnessLogic;
 using CatEntity;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,20 +16,38 @@ namespace WinFormCatShelter
     public partial class MainForm : Form
     {
         private System.Windows.Forms.Timer refreshTimer;
-        private CatService catService = new CatService();
+        private CatService catService;
         private BindingList<Cat> catsBindingList;
 
         private int currentPage = 1;
         private int pageSize = 5; // Котов на странице
         private int totalPages = 1;
+
         public MainForm()
         {
             InitializeComponent();
+            InitializeDependencies(); // Добавляем инициализацию зависимостей
             InitializeDataGridView();
             LoadCats();
             InitializeTimer();
 
             comboBoxPageSize.SelectedItem = pageSize.ToString();
+        }
+
+        // НОВЫЙ МЕТОД: Инициализация зависимостей через Ninject
+        private void InitializeDependencies()
+        {
+            try
+            {
+                IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
+                catService = ninjectKernel.Get<CatService>();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка инициализации зависимостей: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
+            }
         }
 
         private void InitializeTimer()
@@ -38,6 +57,7 @@ namespace WinFormCatShelter
             refreshTimer.Tick += (s, e) => LoadCats();
             refreshTimer.Start();
         }
+
         private void InitializeDataGridView()
         {
             dataGridViewCats.AutoGenerateColumns = true;
@@ -48,6 +68,14 @@ namespace WinFormCatShelter
 
         private void LoadCats()
         {
+            // Проверяем, что catService инициализирован
+            if (catService == null)
+            {
+                MessageBox.Show("Сервис котов не инициализирован", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             // Сохраняем состояние ДО обновления
             int selectedCatId = -1;
             int currentRowIndex = -1;
