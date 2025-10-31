@@ -1,5 +1,6 @@
 ﻿using BisnessLogic;
 using CatEntity;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,12 @@ namespace CatShelterConsole
 {
     internal class Program
     {
-        static CatService catService = new CatService();
+        private static CatService catService;
+        private static IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
 
         static void Main(string[] args)
         {
+            catService = ninjectKernel.Get<CatService>();
             while (true)
             {
                 Console.Clear();

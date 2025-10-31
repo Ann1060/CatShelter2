@@ -8,7 +8,17 @@ using CatShelterDaL;
 
 namespace BisnessLogic
 {
-    public class CatService
+    interface ICatService <T> where T : class
+    {
+        void AddCat(T entity);
+        List<Cat> GetAllCats();
+        Cat GetCatById(int id);
+        void UpdateCat(T entity);
+        void DeleteCat(int id);
+        Dictionary<string, int> GetCatsByBreedGrouped();
+        int GetTotalCats();
+    }
+    public class CatService : ICatService<Cat>
     {
         private readonly IRepository<Cat> repository;
         public CatService(IRepository<Cat> _repository)
