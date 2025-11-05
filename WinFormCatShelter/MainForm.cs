@@ -267,8 +267,14 @@ namespace WinFormCatShelter
                 message += $"{item.Key}: {item.Value} {catWord}\n";
             }
 
-            message += $"\nВсего котов: {catService.GetTotalCats()}";
+            message += "\n\n🐱 Кошачьи года:\n\n";
+            var catYears = catService.CalculateCatAgeInHumanYears();
+            foreach (var item in catYears)
+            {
+                message += $"{item.Key}: {item.Value}\n";
+            }
 
+            message += $"\nВсего котов: {catService.GetTotalCats()}";
             MessageBox.Show(message, "Статистика приюта");
         }
 

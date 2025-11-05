@@ -17,11 +17,12 @@ namespace BisnessLogic
         void DeleteCat(int id);
         Dictionary<string, int> GetCatsByBreedGrouped();
         int GetTotalCats();
+        Dictionary<string, int> CalculateCatAgeInHumanYears();
     }
     public class CatService : ICatService<Cat>
     {
-        private readonly IRepository<Cat> repository;
-        public CatService(IRepository<Cat> _repository)
+        private readonly ICatRepository repository;
+        public CatService(ICatRepository _repository)
         {
             repository = _repository;
         }
@@ -84,6 +85,11 @@ namespace BisnessLogic
         public List<Cat> GetPagedCats(int pageNumber, int pageSize)
         {
             return repository.GetPaged(pageNumber, pageSize);
+        }
+
+        public Dictionary<string, int> CalculateCatAgeInHumanYears()
+        {
+            return repository.CalculateCatAgeInHumanYears();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace CatShelterDaL
     {
         public Context() : base("DbConnection")
         {
-
+            
         }
         public DbSet<Cat> Cats { get; set; }
     }
