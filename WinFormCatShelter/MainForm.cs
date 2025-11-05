@@ -273,7 +273,7 @@ namespace WinFormCatShelter
             {
                 message += $"{item.Key}: {item.Value}\n";
             }
-
+            //лялялялялля
             message += $"\nВсего котов: {catService.GetTotalCats()}";
             MessageBox.Show(message, "Статистика приюта");
         }
