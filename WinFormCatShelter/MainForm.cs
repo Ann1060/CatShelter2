@@ -1,5 +1,6 @@
 ﻿using BisnessLogic;
 using CatEntity;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,7 @@ namespace WinFormCatShelter
     public partial class MainForm : Form
     {
         private System.Windows.Forms.Timer refreshTimer;
-        private CatService catService = new CatService();
+        private CatService catService;
         private BindingList<Cat> catsBindingList;
 
         private int currentPage = 1;
@@ -25,6 +26,7 @@ namespace WinFormCatShelter
         {
             InitializeComponent();
             InitializeDataGridView();
+            InitializeDependencies();
             LoadCats();
             InitializeTimer();
 
@@ -37,6 +39,22 @@ namespace WinFormCatShelter
             refreshTimer.Interval = 3000; // 3 секунды
             refreshTimer.Tick += (s, e) => LoadCats();
             refreshTimer.Start();
+        }
+
+        // НОВЫЙ МЕТОД: Инициализация зависимостей через Ninject
+        private void InitializeDependencies()
+        {
+            try
+            {
+                IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
+                catService = ninjectKernel.Get<CatService>();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка инициализации зависимостей: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
+            }
         }
         private void InitializeDataGridView()
         {
@@ -239,8 +257,14 @@ namespace WinFormCatShelter
                 message += $"{item.Key}: {item.Value} {catWord}\n";
             }
 
-            message += $"\nВсего котов: {catService.GetTotalCats()}";
+            message += "\n\n🐱 Кошачьи года:\n\n";
+            var catYears = catService.CalculateCatAgeInHumanYears();
+            foreach (var item in catYears)
+            {
+                message += $"{item.Key}: {item.Value}\n";
+            }
 
+            message += $"\nВсего котов: {catService.GetTotalCats()}";
             MessageBox.Show(message, "Статистика приюта");
         }
 

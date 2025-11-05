@@ -14,7 +14,7 @@ namespace BisnessLogic
     {
         public override void Load()
         {
-            Bind<IRepository<Cat>>().To<EntityFrameworkRepository<Cat>>().InSingletonScope();
+            Bind<ICatRepository>().To<CatRepository>().InSingletonScope();
         }
     }
 }

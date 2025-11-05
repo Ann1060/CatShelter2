@@ -1,74 +1,80 @@
-﻿using System;
+﻿using CatEntity;
+using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CatEntity;
 
 namespace CatShelterDaL
 {
-    public class Context : DbContext
+    public interface ICatRepository : IRepository<Cat>
     {
-        public Context() : base("DbConnection")
-        {
-            
-        }
-        public DbSet<Cat> Cats { get; set; }
+        Dictionary<string, int> CalculateCatAgeInHumanYears();
     }
-    public class EntityFrameworkRepository<T> :
-        IRepository<T> where T : class, IDomainObject, new()
+    public class CatRepository : ICatRepository
     {
         public Context _context;
         private bool _disposed = false;
-        public EntityFrameworkRepository()
+        public CatRepository()
         {
             _context = new Context();
         }
-        public List<T> GetAll()
+        public List<Cat> GetAll()
         {
-            if (_context.Set<T>().Count() == 0)
+            if (_context.Set<Cat>().Count() == 0)
             {
                 return null;
             }
-            return _context.Set<T>().ToList();
+            return _context.Set<Cat>().ToList();
         }
-        public void Add(T entity)
+        public void Add(Cat entity)
         {
-            _context.Set<T>().Add(entity);
+            _context.Set<Cat>().Add(entity);
             _context.SaveChanges();
         }
         public void Delete(int id)
         {
-            T entity = GetById(id);
-            _context.Set<T>().Remove(entity);
+            Cat entity = GetById(id);
+            _context.Set<Cat>().Remove(entity);
             _context.SaveChanges();
         }
-        public void Update(T entity)
+        public void Update(Cat entity)
         {
-            T item = GetById(entity.Id);
+            Cat item = GetById(entity.Id);
             if (item == null)
                 throw new ArgumentException($"Сущность с ID {entity.Id} не найдена");
             _context.Entry(item).CurrentValues.SetValues(entity);
             _context.SaveChanges();
         }
-        public T GetById(int id)
+        public Cat GetById(int id)
         {
-            return _context.Set<T>().Find(id);
+            return _context.Set<Cat>().Find(id);
         }
         public int GetTotal()
         {
-            return _context.Set<T>().Count();
+            return _context.Set<Cat>().Count();
         }
-        public List<T> GetPaged(int pageNumber, int pageSize)
+        public List<Cat> GetPaged(int pageNumber, int pageSize)
         {
-            return _context.Set<T>()
-                .OrderBy(x => x.Id) // или любое другое поле для сортировки
+            return _context.Set<Cat>()
+                .OrderBy(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
         }
-        
+
+        Dictionary<string, int> ICatRepository.CalculateCatAgeInHumanYears()
+        {
+            return _context.Set<Cat>().ToDictionary(cat => cat.Name,
+            cat =>
+            {
+                if (cat.Age == 1) return 15;          // 1 кошачий год = 15 человеческих
+                else if (cat.Age == 2) return 24;     // 2 кошачий год = 24 человеческих
+                else return 24 + (cat.Age - 2) * 4;   // Последующие годы ×4
+            }
+            ) ?? new Dictionary<string, int>();
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -91,7 +97,7 @@ namespace CatShelterDaL
         }
 
         // на случай, если Dispose не был вызван
-        ~EntityFrameworkRepository()
+        ~CatRepository()
         {
             Dispose(false);
         }
