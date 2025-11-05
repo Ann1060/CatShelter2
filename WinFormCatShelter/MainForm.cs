@@ -22,23 +22,16 @@ namespace WinFormCatShelter
         private int currentPage = 1;
         private int pageSize = 5; // Котов на странице
         private int totalPages = 1;
+
         public MainForm()
         {
             InitializeComponent();
+            InitializeDependencies(); // Добавляем инициализацию зависимостей
             InitializeDataGridView();
-            InitializeDependencies();
             LoadCats();
             InitializeTimer();
 
             comboBoxPageSize.SelectedItem = pageSize.ToString();
-        }
-
-        private void InitializeTimer()
-        {
-            refreshTimer = new System.Windows.Forms.Timer();
-            refreshTimer.Interval = 3000; // 3 секунды
-            refreshTimer.Tick += (s, e) => LoadCats();
-            refreshTimer.Start();
         }
 
         // НОВЫЙ МЕТОД: Инициализация зависимостей через Ninject
@@ -56,6 +49,15 @@ namespace WinFormCatShelter
                 throw;
             }
         }
+
+        private void InitializeTimer()
+        {
+            refreshTimer = new System.Windows.Forms.Timer();
+            refreshTimer.Interval = 3000; // 3 секунды
+            refreshTimer.Tick += (s, e) => LoadCats();
+            refreshTimer.Start();
+        }
+
         private void InitializeDataGridView()
         {
             dataGridViewCats.AutoGenerateColumns = true;
@@ -66,6 +68,14 @@ namespace WinFormCatShelter
 
         private void LoadCats()
         {
+            // Проверяем, что catService инициализирован
+            if (catService == null)
+            {
+                MessageBox.Show("Сервис котов не инициализирован", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             // Сохраняем состояние ДО обновления
             int selectedCatId = -1;
             int currentRowIndex = -1;

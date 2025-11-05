@@ -71,7 +71,7 @@ namespace CatShelterDaL
                 if (cat.Age == 1) return 15;          // 1 кошачий год = 15 человеческих
                 else if (cat.Age == 2) return 24;     // 2 кошачий год = 24 человеческих
                 else return 24 + (cat.Age - 2) * 4;   // Последующие годы ×4
-            }
+            }   
             ) ?? new Dictionary<string, int>();
         }
 

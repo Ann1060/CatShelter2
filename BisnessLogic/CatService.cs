@@ -8,7 +8,7 @@ using CatShelterDaL;
 
 namespace BisnessLogic
 {
-    interface ICatService<T> where T : class
+    interface ICatService <T> where T : class
     {
         void AddCat(T entity);
         List<Cat> GetAllCats();
