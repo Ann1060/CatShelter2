@@ -13,67 +13,14 @@ namespace CatShelterDaL
         Dictionary<string, int> GetAgeGroups(); // ДОБАВЛЕН ВТОРОЙ МЕТОД
     }
 
-    public class CatRepository : ICatRepository
+    public class CatRepository : EntityFrameworkRepository<Cat>, ICatRepository
     {
-        public Context _context;
-        private bool _disposed = false;
-
-        public CatRepository()
+        public CatRepository() : base()
         {
-            _context = new Context();
+
         }
 
-        public List<Cat> GetAll()
-        {
-            if (_context.Set<Cat>().Count() == 0)
-            {
-                return null;
-            }
-            return _context.Set<Cat>().ToList();
-        }
-
-        public void Add(Cat entity)
-        {
-            _context.Set<Cat>().Add(entity);
-            _context.SaveChanges();
-        }
-
-        public void Delete(int id)
-        {
-            Cat entity = GetById(id);
-            _context.Set<Cat>().Remove(entity);
-            _context.SaveChanges();
-        }
-
-        public void Update(Cat entity)
-        {
-            Cat item = GetById(entity.Id);
-            if (item == null)
-                throw new ArgumentException($"Сущность с ID {entity.Id} не найдена");
-            _context.Entry(item).CurrentValues.SetValues(entity);
-            _context.SaveChanges();
-        }
-
-        public Cat GetById(int id)
-        {
-            return _context.Set<Cat>().Find(id);
-        }
-
-        public int GetTotal()
-        {
-            return _context.Set<Cat>().Count();
-        }
-
-        public List<Cat> GetPaged(int pageNumber, int pageSize)
-        {
-            return _context.Set<Cat>()
-                .OrderBy(x => x.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-        }
-
-        // ПЕРВЫЙ МЕТОД (от напарницы): Расчет кошачьего возраста в человеческих годах
+        // ПЕРВЫЙ МЕТОД: Расчет кошачьего возраста в человеческих годах
         public Dictionary<string, int> CalculateCatAgeInHumanYears()
         {
             var cats = GetAll();
@@ -106,33 +53,6 @@ namespace CatShelterDaL
             if (age <= 7) return "Взрослые";
             if (age <= 12) return "Зрелые";
             return "Почтенные старцы";
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // Освобождаем управляемые ресурсы
-                    _context?.Dispose();
-                }
-
-                // Освобождаем неуправляемые ресурсы (если есть)
-                _disposed = true;
-            }
-        }
-
-        // на случай, если Dispose не был вызван
-        ~CatRepository()
-        {
-            Dispose(false);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace CatShelterDaL
         IRepository<T> where T : class, IDomainObject, new()
     {
         public Context _context;
-        private bool _disposed = false;
+        public bool _disposed = false;
         public EntityFrameworkRepository()
         {
             _context = new Context();
