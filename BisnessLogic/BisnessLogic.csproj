@@ -107,7 +107,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="CatService.cs" />
     <Compile Include="SimpleConfigModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -125,6 +124,9 @@
       <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
       <Name>CatShelterDaL</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Start\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -1,95 +1,68 @@
-﻿using System;
+﻿using CatEntity;
+using CatShelter.Shared;     // здесь интерфейс IModel
+using CatShelterDaL;       // здесь ICatRepository
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CatEntity;
-using CatShelterDaL;
 
 namespace BisnessLogic
 {
-    interface ICatService <T> where T : class
+    /// <summary>
+    /// Это и есть Model + Business Logic из лабораторной 4
+    /// Presenter получает именно этот класс через интерфейс IModel
+    /// </summary>
+    public class CatService : IModel
     {
-        void AddCat(T entity);
-        List<Cat> GetAllCats();
-        Cat GetCatById(int id);
-        void UpdateCat(T entity);
-        void DeleteCat(int id);
-        Dictionary<string, int> GetCatsByBreedGrouped();
-        int GetTotalCats();
-        Dictionary<string, int> CalculateCatAgeInHumanYears();
-    }
-    public class CatService : ICatService<Cat>
-    {
-        private readonly ICatRepository repository;
-        public CatService(ICatRepository _repository)
+        private readonly ICatRepository _repository;
+
+        public CatService(ICatRepository repository)
         {
-            repository = _repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
+        public List<Cat> GetAllCats() => _repository.GetAll().ToList();
 
-        // Добавить кота
+        public List<Cat> GetPagedCats(int page, int pageSize)
+        {
+            int skip = (page - 1) * pageSize;
+            return _repository.GetAll()
+                .OrderBy(c => c.Id)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public int GetTotalCats() => _repository.GetAll().Count();
+
+        public Cat GetCatById(int id) => _repository.GetById(id);
+
         public void AddCat(Cat cat)
         {
-            if (cat == null)
-                throw new ArgumentException("Кот не может быть пустым");
+            if (cat == null) throw new ArgumentException("Кот не может быть null");
+            if (string.IsNullOrWhiteSpace(cat.Name)) throw new ArgumentException("Имя обязательно");
 
-            if (string.IsNullOrEmpty(cat.Name))
-                throw new ArgumentException("Имя кота обязательно");
-
-            if (string.IsNullOrEmpty(cat.Breed))
-                throw new ArgumentException("Порода кота обязательна");
-
-            repository.Add(cat);
+            _repository.Add(cat);
         }
 
-        // Получить всех котов
-        public List<Cat> GetAllCats()
+        public void UpdateCat(Cat cat)
         {
-            return repository.GetAll();
+            _repository.Update(cat);
         }
 
-        // Найти кота по ID
-        public Cat GetCatById(int id)
-        {
-            return repository.GetById(id);
-        }
-
-        // Обновить кота
-        public void UpdateCat(Cat updatedCat)
-        {
-            repository.Update(updatedCat);
-        }
-
-        // Удалить кота
         public void DeleteCat(int id)
         {
-            repository.Delete(id);
+            _repository.Delete(id);
         }
-
-        // Группировка котов по породе
         public Dictionary<string, int> GetCatsByBreedGrouped()
         {
-            List<Cat> cats = repository.GetAll();
-            return cats
-                .GroupBy(c => c.Breed)
+            return _repository.GetAll()
+                .GroupBy(c => string.IsNullOrEmpty(c.Breed) ? "Без породы" : c.Breed)
                 .ToDictionary(g => g.Key, g => g.Count());
         }
-
-        // Получить общее количество котов
-        public int GetTotalCats()
-        {
-            return repository.GetTotal();
-        }
-
-        public List<Cat> GetPagedCats(int pageNumber, int pageSize)
-        {
-            return repository.GetPaged(pageNumber, pageSize);
-        }
+        public Dictionary<string, int> GetAgeGroups()
+            => _repository.GetAgeGroups();
 
         public Dictionary<string, int> CalculateCatAgeInHumanYears()
-        {
-            return repository.CalculateCatAgeInHumanYears();
-        }
+            => _repository.CalculateCatAgeInHumanYears();
     }
 }

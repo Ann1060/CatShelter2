@@ -1,360 +1,138 @@
-﻿using BisnessLogic;
-using CatEntity;
-using Ninject;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using CatEntity;
+using CatShelter.Shared;
 
 namespace WinFormCatShelter
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IView
     {
-        private System.Windows.Forms.Timer refreshTimer;
-        private CatService catService;
-        private BindingList<Cat> catsBindingList;
+        //События View (Presenter подпишется на них) ======
 
-        private int currentPage = 1;
-        private int pageSize = 5; // Котов на странице
-        private int totalPages = 1;
+        public event Action AddCatClicked;
+        public event Action EditCatClicked;
+        public event Action DeleteCatClicked;
+        public event Action RefreshClicked;
+        public event Action StatsCat;
+
+        public event Action NextPageClicked;
+        public event Action PrevPageClicked;
+        public event Action PageSizeChanged;
+
+        // Поля 
+        private BindingList<Cat> catsBinding = new BindingList<Cat>();
 
         public MainForm()
         {
             InitializeComponent();
-            InitializeDependencies(); // Добавляем инициализацию зависимостей
-            InitializeDataGridView();
-            LoadCats();
-            InitializeTimer();
 
-            comboBoxPageSize.SelectedItem = pageSize.ToString();
-        }
+            // подключаем обработчики кнопок
+            HookEvents();
 
-        // НОВЫЙ МЕТОД: Инициализация зависимостей через Ninject
-        private void InitializeDependencies()
-        {
-            try
-            {
-                IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
-                catService = ninjectKernel.Get<CatService>();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка инициализации зависимостей: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw;
-            }
-        }
-
-        private void InitializeTimer()
-        {
-            refreshTimer = new System.Windows.Forms.Timer();
-            refreshTimer.Interval = 3000; // 3 секунды
-            refreshTimer.Tick += (s, e) => LoadCats();
-            refreshTimer.Start();
-        }
-
-        private void InitializeDataGridView()
-        {
+            // DataGridView
             dataGridViewCats.AutoGenerateColumns = true;
             dataGridViewCats.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewCats.ReadOnly = true;
             dataGridViewCats.AllowUserToAddRows = false;
         }
 
-        private void LoadCats()
+        private void HookEvents()
         {
-            // Проверяем, что catService инициализирован
-            if (catService == null)
-            {
-                MessageBox.Show("Сервис котов не инициализирован", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            buttonAdd.Click += (s, e) => AddCatClicked?.Invoke();
+            buttonEdit.Click += (s, e) => EditCatClicked?.Invoke();
+            buttonDelete.Click += (s, e) => DeleteCatClicked?.Invoke();
+            buttonRefresh.Click += (s, e) => RefreshClicked?.Invoke();
+            buttonStats.Click += (s, e) => StatsCat?.Invoke();
 
-            // Сохраняем состояние ДО обновления
-            int selectedCatId = -1;
-            int currentRowIndex = -1;
-            int currentColumnIndex = -1;
+            buttonNext.Click += (s, e) => NextPageClicked?.Invoke();
+            buttonPrev.Click += (s, e) => PrevPageClicked?.Invoke();
 
-            if (dataGridViewCats.SelectedRows.Count > 0 && dataGridViewCats.SelectedRows[0].DataBoundItem is Cat selectedCat)
-            {
-                selectedCatId = selectedCat.Id;
-            }
+            comboBoxPageSize.SelectedIndexChanged += (s, e) => PageSizeChanged?.Invoke();
 
-            // Сохраняем текущую ячейку (для стрелочки)
-            if (dataGridViewCats.CurrentCell != null)
-            {
-                currentRowIndex = dataGridViewCats.CurrentCell.RowIndex;
-                currentColumnIndex = dataGridViewCats.CurrentCell.ColumnIndex;
-            }
-
-            int firstVisibleRow = dataGridViewCats.FirstDisplayedScrollingRowIndex;
-
-            try
-            {
-                // ОБНОВЛЕННЫЙ КОД С ПАГИНАЦИЕЙ
-                // Получаем данные с пагинацией
-                var cats = catService.GetPagedCats(currentPage, pageSize);
-                var totalCount = catService.GetTotalCats();
-
-                // Обновляем DataGridView
-                catsBindingList = new BindingList<Cat>(cats ?? new List<Cat>());
-                dataGridViewCats.DataSource = catsBindingList;
-
-                // Восстанавливаем позицию прокрутки
-                if (firstVisibleRow >= 0 && firstVisibleRow < dataGridViewCats.RowCount)
-                {
-                    dataGridViewCats.FirstDisplayedScrollingRowIndex = firstVisibleRow;
-                }
-
-                // Восстанавливаем выделение и текущую ячейку
-                if (selectedCatId != -1)
-                {
-                    dataGridViewCats.ClearSelection();
-
-                    for (int i = 0; i < dataGridViewCats.Rows.Count; i++)
-                    {
-                        if (dataGridViewCats.Rows[i].DataBoundItem is Cat cat && cat.Id == selectedCatId)
-                        {
-                            // Выделяем строку
-                            dataGridViewCats.Rows[i].Selected = true;
-
-                            // Восстанавливаем текущую ячейку (стрелочку)
-                            if (currentColumnIndex >= 0 && currentColumnIndex < dataGridViewCats.Columns.Count)
-                            {
-                                dataGridViewCats.CurrentCell = dataGridViewCats.Rows[i].Cells[currentColumnIndex];
-                            }
-                            else
-                            {
-                                dataGridViewCats.CurrentCell = dataGridViewCats.Rows[i].Cells[0]; // Первая колонка
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                // ОБНОВЛЯЕМ ИНФОРМАЦИЮ О ПАГИНАЦИИ
-                UpdatePaginationInfo(totalCount);
-
-                // Обновляем общее количество котов
-                labelTotal.Text = $"Всего котов: {totalCount}";
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            dataGridViewCats.CellDoubleClick += (s, e) => EditCatClicked?.Invoke();
         }
 
-        // Метод для обновления информации о пагинации
-        private void UpdatePaginationInfo(int totalCount)
+        //Методы IView
+
+        public void ShowCats(IEnumerable<Cat> cats)
         {
-            // Вычисляем общее количество страниц
-            totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-            if (totalPages == 0) totalPages = 1;
-
-            // Обновляем информацию о странице
-            labelPageInfo.Text = $"Страница {currentPage} из {totalPages}";
-
-            // Обновляем состояние кнопок
-            buttonPrev.Enabled = currentPage > 1;
-            buttonNext.Enabled = currentPage < totalPages;
+            catsBinding = new BindingList<Cat>(new List<Cat>(cats));
+            dataGridViewCats.DataSource = catsBinding;
         }
 
-        private void buttonAdd_Click(object sender, EventArgs e)
+        public void ShowMessage(string message)
         {
-            var addForm = new AddCatForm();
-            if (addForm.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    catService.AddCat(addForm.NewCat);
-                    LoadCats(); // Перезагружаем данные
-                    MessageBox.Show("Кот успешно добавлен!");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка: {ex.Message}");
-                }
-            }
+            MessageBox.Show(message);
         }
 
-        private void buttonEdit_Click(object sender, EventArgs e)
+        public int GetSelectedCatId()
         {
-            if (dataGridViewCats.SelectedRows.Count > 0)
+            if (dataGridViewCats.SelectedRows.Count == 0)
+                return -1;
+
+            if (dataGridViewCats.SelectedRows[0].DataBoundItem is Cat cat)
+                return cat.Id;
+
+            return -1;
+        }
+
+        public void GetCatInput(out string name, out string breed, out int age)
+        {
+            var form = new AddCatForm();
+
+            if (form.ShowDialog() == DialogResult.OK)
             {
-                var selectedCat = (Cat)dataGridViewCats.SelectedRows[0].DataBoundItem;
-                var editForm = new EditCatForm(selectedCat);
-                if (editForm.ShowDialog() == DialogResult.OK)
-                {
-                    try
-                    {
-                        catService.UpdateCat(editForm.UpdatedCat);
-                        LoadCats(); // Перезагружаем данные
-                        MessageBox.Show("Данные кота обновлены!");
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка: {ex.Message}");
-                    }
-                }
+                name = form.NewCat.Name;
+                breed = form.NewCat.Breed;
+                age = form.NewCat.Age;
             }
             else
             {
-                MessageBox.Show("Выберите кота для редактирования");
+                name = breed = "";
+                age = 0;
             }
         }
 
-        private void buttonDelete_Click(object sender, EventArgs e)
+        public (string name, string breed, int age) GetUpdatedCatData(Cat cat)
         {
-            if (dataGridViewCats.SelectedRows.Count > 0)
+            var form = new EditCatForm(cat);
+
+            if (form.ShowDialog() == DialogResult.OK)
             {
-                try
-                {
-                    var selectedCat = dataGridViewCats.SelectedRows[0].DataBoundItem as Cat;
-                    if (selectedCat != null)
-                    {
-                        var result = MessageBox.Show($"Вы уверены, что хотите удалить кота {selectedCat.Name}?",
-                            "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                        if (result == DialogResult.Yes)
-                        {
-                            catService.DeleteCat(selectedCat.Id);
-
-                            // Проверяем, не остались ли мы на пустой странице после удаления
-                            var totalCount = catService.GetTotalCats();
-                            var maxPageForCurrentSize = (int)Math.Ceiling((double)totalCount / pageSize);
-
-                            if (currentPage > maxPageForCurrentSize && maxPageForCurrentSize > 0)
-                            {
-                                currentPage = maxPageForCurrentSize;
-                            }
-
-                            LoadCats();
-
-                            MessageBox.Show("Кот успешно удален", "Успех",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return (form.UpdatedCat.Name, form.UpdatedCat.Breed, form.UpdatedCat.Age);
             }
-            else
-            {
-                MessageBox.Show("Выберите кота для удаления", "Информация",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+
+            return (null, null, -1);
         }
 
-        private void buttonStats_Click(object sender, EventArgs e)
+        public void UpdatePageInfo(int current, int total)
         {
-            var stats = catService.GetCatsByBreedGrouped();
-            string message = "🐱 Коты по породам:\n\n";
-
-            foreach (var item in stats)
-            {
-                string catWord = GetCorrectCatWord(item.Value);
-                message += $"{item.Key}: {item.Value} {catWord}\n";
-            }
-
-            message += "\n\n🐱 Кошачьи года:\n\n";
-            var catYears = catService.CalculateCatAgeInHumanYears();
-            foreach (var item in catYears)
-            {
-                message += $"{item.Key}: {item.Value}\n";
-            }
-            //лялялялялля
-            message += $"\nВсего котов: {catService.GetTotalCats()}";
-            MessageBox.Show(message, "Статистика приюта");
+            labelPageInfo.Text = $"Страница {current} из {total}";
         }
 
-        private string GetCorrectCatWord(int count)
+        public void UpdateTotalLabel(int totalCount)
         {
-            int lastDigit = count % 10;
-            int lastTwoDigits = count % 100;
-
-            // Исключения для чисел 11-14
-            if (lastTwoDigits >= 11 && lastTwoDigits <= 14)
-            {
-                return "котов";
-            }
-
-            switch (lastDigit)
-            {
-                case 1:
-                    return "кот";
-                case 2:
-                case 3:
-                case 4:
-                    return "кота";
-                default:
-                    return "котов";
-            }
+            labelTotal.Text = $"Всего котов: {totalCount}";
         }
 
-        private void buttonRefresh_Click(object sender, EventArgs e)
+        public int GetPageSize()
         {
-            LoadCats();
+            if (int.TryParse(comboBoxPageSize.SelectedItem?.ToString(), out int value))
+                return value;
+
+            return 5;
         }
 
-        // Двойной клик по строке для редактирования
-        private void dataGridViewCats_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        public void SetPrevButtonEnabled(bool enabled)
         {
-            if (e.RowIndex >= 0)
-            {
-                buttonEdit_Click(sender, e);
-            }
+            buttonPrev.Enabled = enabled;
         }
 
-        private void ButtonPrev_Click(object sender, EventArgs e)
+        public void SetNextButtonEnabled(bool enabled)
         {
-            if (currentPage > 1)
-            {
-                currentPage--;
-                LoadCats();
-            }
-        }
-
-        private void ButtonNext_Click(object sender, EventArgs e)
-        {
-            if (currentPage < totalPages)
-            {
-                currentPage++;
-                LoadCats();
-            }
-        }
-
-        private void ComboBoxPageSize_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (comboBoxPageSize.SelectedItem != null)
-            {
-                // Сохраняем текущую позицию прокрутки
-                var firstDisplayedScrollingRowIndex = dataGridViewCats.FirstDisplayedScrollingRowIndex;
-
-                // Обновляем размер страницы
-                pageSize = int.Parse(comboBoxPageSize.SelectedItem.ToString());
-                currentPage = 1; // Сбрасываем на первую страницу
-
-                // Перезагружаем данные
-                LoadCats();
-
-                // Восстанавливаем позицию прокрутки (если возможно)
-                if (firstDisplayedScrollingRowIndex >= 0 && firstDisplayedScrollingRowIndex < dataGridViewCats.Rows.Count)
-                {
-                    dataGridViewCats.FirstDisplayedScrollingRowIndex =
-                        Math.Min(firstDisplayedScrollingRowIndex, dataGridViewCats.Rows.Count - 1);
-                }
-            }
+            buttonNext.Enabled = enabled;
         }
     }
 }
