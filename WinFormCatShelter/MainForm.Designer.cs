@@ -60,7 +60,7 @@
             this.dataGridViewCats.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewCats.ReadOnly = true;
             this.dataGridViewCats.AllowUserToAddRows = false;
-            this.dataGridViewCats.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewCats_CellDoubleClick);
+
 
             // buttonAdd
             this.buttonAdd.Location = new System.Drawing.Point(12, 12);
@@ -69,7 +69,7 @@
             this.buttonAdd.TabIndex = 1;
             this.buttonAdd.Text = "Добавить";
             this.buttonAdd.UseVisualStyleBackColor = true;
-            this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+
 
             // buttonEdit
             this.buttonEdit.Location = new System.Drawing.Point(93, 12);
@@ -78,8 +78,6 @@
             this.buttonEdit.TabIndex = 2;
             this.buttonEdit.Text = "Изменить";
             this.buttonEdit.UseVisualStyleBackColor = true;
-            this.buttonEdit.Click += new System.EventHandler(this.buttonEdit_Click);
-
             // buttonDelete
             this.buttonDelete.Location = new System.Drawing.Point(174, 12);
             this.buttonDelete.Name = "buttonDelete";
@@ -87,7 +85,7 @@
             this.buttonDelete.TabIndex = 3;
             this.buttonDelete.Text = "Удалить";
             this.buttonDelete.UseVisualStyleBackColor = true;
-            this.buttonDelete.Click += new System.EventHandler(this.buttonDelete_Click);
+
 
             // buttonStats
             this.buttonStats.Location = new System.Drawing.Point(255, 12);
@@ -96,7 +94,7 @@
             this.buttonStats.TabIndex = 4;
             this.buttonStats.Text = "Статистика";
             this.buttonStats.UseVisualStyleBackColor = true;
-            this.buttonStats.Click += new System.EventHandler(this.buttonStats_Click);
+
 
             // buttonRefresh
             this.buttonRefresh.Location = new System.Drawing.Point(336, 12);
@@ -105,7 +103,7 @@
             this.buttonRefresh.TabIndex = 5;
             this.buttonRefresh.Text = "Обновить";
             this.buttonRefresh.UseVisualStyleBackColor = true;
-            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
+
 
             // labelTotal
             this.labelTotal.AutoSize = true;
@@ -118,26 +116,26 @@
             // 
             // buttonPrev
             // 
-            this.buttonPrev.Enabled = false;
+            this.buttonPrev.Enabled = true;
             this.buttonPrev.Location = new System.Drawing.Point(430, 350);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(80, 25);
             this.buttonPrev.TabIndex = 7;
             this.buttonPrev.Text = "← Назад";
             this.buttonPrev.UseVisualStyleBackColor = true;
-            this.buttonPrev.Click += new System.EventHandler(this.ButtonPrev_Click);
+
 
             // 
             // buttonNext
             // 
-            this.buttonNext.Enabled = false;
+            this.buttonNext.Enabled = true;
             this.buttonNext.Location = new System.Drawing.Point(620, 350);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(80, 25);
             this.buttonNext.TabIndex = 8;
             this.buttonNext.Text = "Вперед →";
             this.buttonNext.UseVisualStyleBackColor = true;
-            this.buttonNext.Click += new System.EventHandler(this.ButtonNext_Click);
+
 
             // 
             // comboBoxPageSize
@@ -154,7 +152,7 @@
             this.comboBoxPageSize.Name = "comboBoxPageSize";
             this.comboBoxPageSize.Size = new System.Drawing.Size(80, 21);
             this.comboBoxPageSize.TabIndex = 9;
-            this.comboBoxPageSize.SelectedIndexChanged += new System.EventHandler(this.ComboBoxPageSize_SelectedIndexChanged);
+
 
             // 
             // labelPageInfo
@@ -175,7 +173,6 @@
             this.labelPageSize.Size = new System.Drawing.Size(84, 13);
             this.labelPageSize.TabIndex = 11;
             this.labelPageSize.Text = "На странице:";
-
             // MainForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -206,4 +203,3 @@
         #endregion
     }
 }
-
