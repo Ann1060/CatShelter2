@@ -124,6 +124,10 @@
       <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
       <Name>CatShelterDaL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{1cd931f5-1470-4453-8fea-f7f2cf605bc5}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Start\" />

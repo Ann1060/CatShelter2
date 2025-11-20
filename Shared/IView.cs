@@ -36,5 +36,6 @@ namespace CatShelter.Shared
         int GetPageSize();
         void SetPrevButtonEnabled(bool enabled);
         void SetNextButtonEnabled(bool enabled);
+        bool DeleteOrNotDelete();
     }
 }

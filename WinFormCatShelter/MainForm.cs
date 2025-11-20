@@ -134,5 +134,12 @@ namespace WinFormCatShelter
         {
             buttonNext.Enabled = enabled;
         }
+        public bool DeleteOrNotDelete()
+        {
+            var result = MessageBox.Show("Удалить кота?", "Подтверждение", MessageBoxButtons.YesNo);
+            if (result != DialogResult.Yes) return false;
+            if (result == DialogResult.Yes) return true;
+            return false;
+        }
     }
 }
