@@ -13,59 +13,11 @@ namespace CatEntity
         int Id { get; set; }
     }
 
-    public class Cat : IDomainObject, INotifyPropertyChanged
+    public class Cat : IDomainObject
     {
-        private int id;
-        private string name;
-        private string breed;
-        private int age;
-
-        public int Id
-        {
-            get { return id; }
-            set
-            {
-                id = value;
-                OnPropertyChanged("Id");
-            }
-        }
-
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                name = value;
-                OnPropertyChanged("Name");
-            }
-        }
-
-        public string Breed
-        {
-            get { return breed; }
-            set
-            {
-                breed = value;
-                OnPropertyChanged("Breed");
-            }
-        }
-
-        public int Age
-        {
-            get { return age; }
-            set
-            {
-                age = value;
-                OnPropertyChanged("Age");
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(prop));
-        }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Breed { get; set; }
+        public int Age { get; set; }
     }
 }
