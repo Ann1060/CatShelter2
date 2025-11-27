@@ -15,9 +15,12 @@ using System.Windows.Shapes;
 
 namespace CatShelterWPF
 {
-    public partial class AddCatView : Window
+    /// <summary>
+    /// Логика взаимодействия для Window1.xaml
+    /// </summary>
+    public partial class EditCatView : Window
     {
-        public AddCatView(MainViewModel mainViewModel)
+        public EditCatView(MainViewModel mainViewModel)
         {
             InitializeComponent();
             DataContext = mainViewModel;

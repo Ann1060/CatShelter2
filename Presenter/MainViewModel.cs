@@ -3,14 +3,10 @@ using CatShelter.Shared;
 using CatShelterDaL;
 using Presenter;
 using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CatShelter.Presenter
@@ -21,16 +17,20 @@ namespace CatShelter.Presenter
         private readonly ViewManager _viewManager;
         private ObservableCollection<CatDTO> _cats;
         private CatDTO _selectedCat;
+
         public ObservableCollection<CatDTO> Cats
         {
             get => _cats;
             set => SetField(ref _cats, value);
         }
+
         public CatDTO SelectedCat
         {
             get => _selectedCat;
             set => SetField(ref _selectedCat, value);
         }
+
+        // Команды
         public RelayCommand OpenAddDialogCommand { get; }
         public RelayCommand SaveCatCommand { get; }
         public RelayCommand CancelAddCommand { get; }
@@ -42,13 +42,22 @@ namespace CatShelter.Presenter
         public RelayCommand CancelEditCommand { get; }
         public RelayCommand ShowStatisticsCommand { get; }
         public RelayCommand CloseStatisticsCommand { get; }
+
+        // Свойства для форм
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string Breed { get; set; }
+        public CatDTO EditingCat { get; set; }
+        public string DeleteQuestion { get; set; }
+        public string StatisticsText { get; set; }
+
         public MainViewModel(IModel model, ViewManager viewManager)
         {
             _model = model;
             _viewManager = viewManager;
             LoadCat();
 
-            // Инициализация команд (аналог button.Click +=)
+            // Инициализация команд
             OpenAddDialogCommand = new RelayCommand(ExecuteOpenAddDialog);
             SaveCatCommand = new RelayCommand(ExecuteSaveCat);
             CancelAddCommand = new RelayCommand(ExecuteCancelAdd);
@@ -61,6 +70,7 @@ namespace CatShelter.Presenter
             ShowStatisticsCommand = new RelayCommand(ExecuteShowStatistics);
             CloseStatisticsCommand = new RelayCommand(ExecuteCloseStatistics);
         }
+
         private void LoadCat()
         {
             var catsFromDb = _model.GetAllCats();
@@ -73,12 +83,10 @@ namespace CatShelter.Presenter
                     Age = c.Age,
                 })
             );
+
         }
 
-        // СВОЙСТВА ДЛЯ ФОРМЫ ДОБАВЛЕНИЯ
-        public string Name { get; set; }
-        public int Age { get; set; }
-        public string Breed { get; set; }
+        // ФОРМА ДОБАВЛЕНИЯ
         private void ExecuteOpenAddDialog()
         {
             Name = string.Empty;
@@ -86,9 +94,10 @@ namespace CatShelter.Presenter
             Breed = string.Empty;
             _viewManager.ShowAddCatDialog(this);
         }
+
         private void ExecuteSaveCat()
         {
-            if (string.IsNullOrWhiteSpace(Name) && Age > 0 && string.IsNullOrWhiteSpace(Breed))
+            if (!string.IsNullOrWhiteSpace(Name) && Age > 0 && !string.IsNullOrWhiteSpace(Breed))
             {
                 var _cat = new CatDTO
                 {
@@ -98,22 +107,13 @@ namespace CatShelter.Presenter
                 };
 
                 _model.AddCat(_cat.ToDomainModel());
+                LoadCat();
             }
-            else
-            {
-                return;
-            }
-            LoadCat();
         }
+
         private void ExecuteCancelAdd() { }
 
-        // СВОЙСТВА ДЛЯ ФОРМЫ УДАЛЕНИЯ
-        private string _deleteQuestion;
-        public string DeleteQuestion
-        {
-            get => _deleteQuestion;
-            set => SetField(ref _deleteQuestion, value);
-        }
+        // ФОРМА УДАЛЕНИЯ
         private void ExecuteOpenDeleteDialog()
         {
             if (SelectedCat != null)
@@ -121,53 +121,36 @@ namespace CatShelter.Presenter
                 DeleteQuestion = $"Вы точно хотите удалить кота '{SelectedCat.Name}'?";
                 _viewManager.ShowDeleteConfirmDialog(this);
             }
-            else
-            {
-                return;
-            }
         }
+
         private void ExecuteConfirmDelete()
         {
             if (SelectedCat != null)
             {
                 _model.DeleteCat(SelectedCat.Id);
                 SelectedCat = null;
+                LoadCat();
             }
-            else { return; }
-            LoadCat();
-        }
-        private void ExecuteCancelDelete()
-        {
         }
 
-        // СВОЙСТВА ДЛЯ ФОРМЫ ОБНОВЛЕНИЯ
-        private bool _isEditDialogOpen;
-        public bool IsEditDialogOpen
-        {
-            get => _isEditDialogOpen;
-            set => SetField(ref _isEditDialogOpen, value);
-        }
-        public CatDTO _editingCat;
-        public CatDTO EditingCat
-        {
-            get => _editingCat;
-            set => SetField(ref _editingCat, value);
-        }
+        private void ExecuteCancelDelete() { }
+
+        // ФОРМА РЕДАКТИРОВАНИЯ
         private void ExecuteOpenEditDialog()
         {
-            if (SelectedCat == null)
+            if (SelectedCat != null)
             {
-                return;
+                EditingCat = new CatDTO
+                {
+                    Id = SelectedCat.Id,
+                    Name = SelectedCat.Name,
+                    Age = SelectedCat.Age,
+                    Breed = SelectedCat.Breed
+                };
+                _viewManager.ShowEditCatDialog(this); // ИСПРАВЛЕНО - вызываем Edit диалог
             }
-            EditingCat = new CatDTO
-            {
-                Id = SelectedCat.Id,
-                Name = SelectedCat.Name,
-                Age = SelectedCat.Age,
-                Breed = SelectedCat.Breed
-            };
-            IsEditDialogOpen = true;
         }
+
         private void ExecuteSaveEdit()
         {
             if (SelectedCat != null && EditingCat != null)
@@ -179,19 +162,10 @@ namespace CatShelter.Presenter
                 LoadCat();
             }
         }
-        private void ExecuteCancelEdit()
-        {
-            IsEditDialogOpen = false;
-            EditingCat = null;
-        }
 
-        //СВОЙСТВА ДЛЯ ФОРМЫ СТАТИСТИКИ
-        private string _statisticsText;
-        public string StatisticsText
-        {
-            get => _statisticsText;
-            set => SetField(ref _statisticsText, value);
-        }
+        private void ExecuteCancelEdit() { }
+
+        // ФОРМА СТАТИСТИКИ
         private void ExecuteShowStatistics()
         {
             var messageBuilder = new StringBuilder();
@@ -217,17 +191,16 @@ namespace CatShelter.Presenter
             }
             messageBuilder.AppendLine($"\nВсего котов: {_model.GetTotalCats()}");
             StatisticsText = messageBuilder.ToString();
-            _viewManager.ShowEditCatDialog(this);
+            _viewManager.ShowStatisticsDialog(this);
         }
-        private void ExecuteCloseStatistics()
-        {
-        }
+
+        private void ExecuteCloseStatistics() { }
+
         private string GetCorrectCatWord(int count)
         {
             int lastDigit = count % 10;
             int lastTwoDigits = count % 100;
 
-            // Исключения для чисел 11-14
             if (lastTwoDigits >= 11 && lastTwoDigits <= 14)
             {
                 return "котов";

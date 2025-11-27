@@ -1,7 +1,7 @@
 ﻿<Window x:Class="CatShelterWPF.AddCatView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Добавить кота" Height="300" Width="350"
+        Title="Добавить кота" Height="345" Width="350"
         WindowStartupLocation="CenterOwner">
 
     <StackPanel Margin="25">

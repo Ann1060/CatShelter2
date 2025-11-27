@@ -22,7 +22,7 @@ namespace CatShelterWPF
             // Создаем модель и ViewModel
             var _repository = new CatRepository();
             var model = new CatService(_repository);
-            var viewManager = new ViewManager();
+            Presenter.ViewManager viewManager = new CatShelterWPF.ViewManager();
             var mainViewModel = new MainViewModel(model, viewManager);
 
             var mainWindow = new MainWindow();

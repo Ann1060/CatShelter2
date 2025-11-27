@@ -1,0 +1,36 @@
+﻿<Window x:Class="CatShelterWPF.StatisticsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Статистика" Height="500" Width="450"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ЗАГОЛОВОК -->
+        <TextBlock Text="Статистика приюта" 
+                   FontSize="18" FontWeight="Bold" 
+                   Margin="20,15" HorizontalAlignment="Center"/>
+
+        <!-- СТАТИСТИКА -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <TextBlock Text="{Binding StatisticsText}" 
+                       Margin="20" 
+                       TextWrapping="Wrap"
+                       FontFamily="Consolas"
+                       FontSize="12"/>
+        </ScrollViewer>
+
+        <!-- КНОПКА ЗАКРЫТИЯ -->
+        <Button Grid.Row="2" 
+                Content="Закрыть" 
+                Command="{Binding CloseStatisticsCommand}"
+                HorizontalAlignment="Right" 
+                Margin="20" 
+                Padding="15,5"/>
+    </Grid>
+</Window>

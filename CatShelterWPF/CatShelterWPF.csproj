@@ -58,6 +58,15 @@
     <Compile Include="AddCatView.xaml.cs">
       <DependentUpon>AddCatView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DeleteConfirmView.xaml.cs">
+      <DependentUpon>DeleteConfirmView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditCatView.xaml.cs">
+      <DependentUpon>EditCatView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StatisticsView.xaml.cs">
+      <DependentUpon>StatisticsView.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -72,6 +81,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="AddCatView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DeleteConfirmView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EditCatView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StatisticsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
