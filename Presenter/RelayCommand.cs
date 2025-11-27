@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Presenter
+namespace CatShelter.Presenter
 {
     public class RelayCommand : ICommand
     {

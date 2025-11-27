@@ -43,9 +43,9 @@
   <ItemGroup>
     <Compile Include="CatDTO.cs" />
     <Compile Include="BaseViewModel.cs" />
-    <Compile Include="RelayCommand.cs" />
     <Compile Include="ViewManager.cs" />
-    <Compile Include="CatViewModel.cs" />
+    <Compile Include="RelayCommand.cs" />
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="Presenter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -53,6 +53,10 @@
     <ProjectReference Include="..\CatEntity\CatEntity.csproj">
       <Project>{09875e91-3c66-40a0-a9ea-cab1715f1791}</Project>
       <Name>CatEntity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatShelterDaL\CatShelterDaL.csproj">
+      <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
+      <Name>CatShelterDaL</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{1cd931f5-1470-4453-8fea-f7f2cf605bc5}</Project>

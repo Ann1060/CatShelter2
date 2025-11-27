@@ -55,6 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AddCatView.xaml.cs">
+      <DependentUpon>AddCatView.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -68,6 +71,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="AddCatView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -96,9 +103,21 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BisnessLogic\BisnessLogic.csproj">
+      <Project>{026809ef-68b6-40c0-b2a4-8ee983c45682}</Project>
+      <Name>BisnessLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CatShelterDaL\CatShelterDaL.csproj">
+      <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
+      <Name>CatShelterDaL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Presenter\Presenter.csproj">
       <Project>{98088f66-e6f2-4195-9f85-bacaabefc7a9}</Project>
       <Name>Presenter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{1cd931f5-1470-4453-8fea-f7f2cf605bc5}</Project>
+      <Name>Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

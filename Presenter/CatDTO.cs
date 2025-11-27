@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CatEntity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Presenter
+namespace CatShelter.Presenter
 {
     public class CatDTO : INotifyPropertyChanged
     {
@@ -44,6 +45,27 @@ namespace Presenter
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public Cat ToDomainModel()
+        {
+            return new Cat
+            {
+                Id = this.Id,
+                Name = this.Name,
+                Breed = this.Breed,
+                Age = this.Age
+            };
+        }
+
+        public static CatDTO FromDomainModel(Cat cat)
+        {
+            return new CatDTO
+            {
+                Id = cat.Id,
+                Name = cat.Name,
+                Breed = cat.Breed,
+                Age = cat.Age
+            };
         }
     }
 }

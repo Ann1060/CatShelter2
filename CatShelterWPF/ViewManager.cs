@@ -1,4 +1,4 @@
-﻿using Presenter;
+﻿using CatShelter.Presenter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,46 +10,37 @@ namespace CatShelterWPF
 {
     public class ViewManager : Presenter.ViewManager
     {
-        private readonly Dictionary<Type, Type> _viewModelToViewMapping = new Dictionary<Type, Type>();
-        private readonly Dictionary<BaseViewModel, Window> _openViews = new Dictionary<BaseViewModel, Window>();
-
-        public void Register<TViewModel, TView>() where TViewModel : BaseViewModel
+        public override bool? ShowAddCatDialog(MainViewModel mainViewModel)
         {
-            _viewModelToViewMapping[typeof(TViewModel)] = typeof(TView);
+            var addView = new AddCatView();
+            addView.DataContext = mainViewModel;
+            addView.Owner = Application.Current.MainWindow;
+            return addView.ShowDialog();
         }
 
-        public override void Show<TViewModel>(TViewModel viewModel)
+        public override bool? ShowEditCatDialog(MainViewModel mainViewModel)
         {
-            var viewType = _viewModelToViewMapping[typeof(TViewModel)];
-            var view = Activator.CreateInstance(viewType) as Window;
-
-            if (view != null)
-            {
-                view.DataContext = viewModel;
-                view.Show();
-                _openViews[viewModel] = view;
-            }
+            var editView = new EditCatView();
+            editView.DataContext = mainViewModel;
+            editView.Owner = Application.Current.MainWindow;
+            return editView.ShowDialog();
         }
 
-        public override void ShowDialog<TViewModel>(TViewModel viewModel)
+        public override bool? ShowDeleteConfirmDialog(MainViewModel mainViewModel)
         {
-            var viewType = _viewModelToViewMapping[typeof(TViewModel)];
-            var view = Activator.CreateInstance(viewType) as Window;
-
-            if (view != null)
-            {
-                view.DataContext = viewModel;
-                view.ShowDialog();
-            }
+            var deleteView = new DeleteConfirmView();
+            deleteView.DataContext = mainViewModel;
+            deleteView.Owner = Application.Current.MainWindow;
+            return deleteView.ShowDialog();
         }
 
-        public override void Close(BaseViewModel viewModel)
+        public override bool? ShowStatisticsDialog(MainViewModel mainViewModel)
         {
-            if (_openViews.TryGetValue(viewModel, out var view))
-            {
-                view.Close();
-                _openViews.Remove(viewModel);
-            }
+            var statsView = new StatisticsView();
+            statsView.DataContext = mainViewModel;
+            statsView.Owner = Application.Current.MainWindow;
+            statsView.ShowDialog();
+            return statsView.ShowDialog();
         }
     }
 }

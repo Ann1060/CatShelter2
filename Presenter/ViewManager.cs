@@ -1,28 +1,21 @@
-﻿using CatShelter.Shared;
+﻿using CatShelter.Presenter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Presenter
 {
     public abstract class ViewManager
     {
-        public abstract void Show<TViewModel>(TViewModel viewModel) where TViewModel : BaseViewModel;
-        public abstract void ShowDialog<TViewModel>(TViewModel viewModel) where TViewModel : BaseViewModel;
-        public abstract void Close(BaseViewModel viewModel);
+        public abstract bool? ShowAddCatDialog(MainViewModel mainViewModel);
 
-        // Бизнес-логика навигации
-        public void ShowMainView(IModel catService)
-        {
-            var mainViewModel = new CatViewModel(catService, this);
-            Show(mainViewModel);
-        }
+        public abstract bool? ShowEditCatDialog(MainViewModel mainViewModel);
 
-        public void ShowEditDialog(CatDTO cat)
-        {
-            // Логика показа диалога редактирования
-        }
+        public abstract bool? ShowDeleteConfirmDialog(MainViewModel mainViewModel);
+
+        public abstract bool? ShowStatisticsDialog(MainViewModel mainViewModel);
     }
 }
