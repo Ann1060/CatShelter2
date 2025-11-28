@@ -27,10 +27,10 @@ namespace CatShelterDaL
         }
         public List<T> GetAll()
         {
-            if (_context.Set<T>().Count() == 0)
-            {
-                return null;
-            }
+            //if (_context.Set<T>().Count() == 0)
+            //{
+            //    return null;
+            //}
             return _context.Set<T>().ToList();
         }
         public void Add(T entity)

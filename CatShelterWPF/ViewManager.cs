@@ -5,6 +5,7 @@ namespace CatShelterWPF
 {
     public class ViewManager : Presenter.ViewManager
     {
+
         public override bool? ShowAddCatDialog(MainViewModel mainViewModel)
         {
             var addView = new AddCatView(mainViewModel);
@@ -30,7 +31,6 @@ namespace CatShelterWPF
         {
             var statsView = new StatisticsView(mainViewModel);
             statsView.Owner = Application.Current.MainWindow;
-            statsView.ShowDialog();
             return statsView.ShowDialog();
         }
     }

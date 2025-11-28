@@ -20,7 +20,7 @@ namespace BisnessLogic
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public List<Cat> GetAllCats() => _repository.GetAll().ToList();
+        public List<Cat> GetAllCats() => _repository.GetAll();
 
         public List<Cat> GetPagedCats(int page, int pageSize)
         {

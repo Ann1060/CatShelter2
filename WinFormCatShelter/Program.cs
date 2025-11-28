@@ -19,7 +19,7 @@ namespace WinFormCatShelter
             var repository = new CatRepository(); // из CatShelterDaL
             IModel model = new CatService(repository);
             MainForm view = new MainForm();   // она реализует IView
-            var presenter = new Presenter(view, model); // связываем
+            var presenter = new CatShelter.Presenter.Presenter(view, model); // связываем
 
             Application.Run(view);
         }

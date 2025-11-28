@@ -17,8 +17,9 @@ namespace CatShelterWPF
     /// </summary>
     public partial class App : Application
     {
-        private void Application_Startup(object sender, StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
+            base.OnStartup(e);
             // Создаем модель и ViewModel
             var _repository = new CatRepository();
             var model = new CatService(_repository);
@@ -28,6 +29,7 @@ namespace CatShelterWPF
             var mainWindow = new MainWindow();
             mainWindow.DataContext = mainViewModel;
             mainWindow.Show();
+            MainWindow = mainWindow;
         }
     }
 }
