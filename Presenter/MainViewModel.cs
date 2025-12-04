@@ -109,11 +109,13 @@ namespace CatShelter.Presenter
                 _model.AddCat(_cat.ToDomainModel());
                 LoadCat();
             }
+            _viewManager.CloseAddCatDialog();
         }
 
-        private void ExecuteCancelAdd() { }
+        private void ExecuteCancelAdd() { _viewManager.CloseAddCatDialog(); }
 
         // ФОРМА УДАЛЕНИЯ
+        
         private void ExecuteOpenDeleteDialog()
         {
             if (SelectedCat != null)
@@ -131,9 +133,10 @@ namespace CatShelter.Presenter
                 SelectedCat = null;
                 LoadCat();
             }
+            _viewManager.CloseDeleteConfirmDialog();
         }
 
-        private void ExecuteCancelDelete() { }
+        private void ExecuteCancelDelete() { _viewManager.CloseDeleteConfirmDialog(); }
 
         // ФОРМА РЕДАКТИРОВАНИЯ
         private void ExecuteOpenEditDialog()
@@ -161,9 +164,10 @@ namespace CatShelter.Presenter
                 _model.UpdateCat(SelectedCat.ToDomainModel());
                 LoadCat();
             }
+            _viewManager.CloseEditCatDialog();
         }
 
-        private void ExecuteCancelEdit() { }
+        private void ExecuteCancelEdit() { _viewManager.CloseEditCatDialog(); }
 
         // ФОРМА СТАТИСТИКИ
         private void ExecuteShowStatistics()
@@ -194,7 +198,7 @@ namespace CatShelter.Presenter
             _viewManager.ShowStatisticsDialog(this);
         }
 
-        private void ExecuteCloseStatistics() { }
+        private void ExecuteCloseStatistics() { _viewManager.CloseStatisticsDialog(); }
 
         private string GetCorrectCatWord(int count)
         {
