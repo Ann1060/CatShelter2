@@ -9,53 +9,78 @@ namespace WinFormCatShelter
 {
     public partial class MainForm : Form, IView
     {
-        //События View (Presenter подпишется на них) ======
+        // ССЫЛКА НА CONTROLLER (вместо событий)
+        private CatController _controller;
 
-        public event Action AddCatClicked;
-        public event Action EditCatClicked;
-        public event Action DeleteCatClicked;
-        public event Action RefreshClicked;
-        public event Action StatsCat;
-
-        public event Action NextPageClicked;
-        public event Action PrevPageClicked;
-        public event Action PageSizeChanged;
-
-        // Поля 
         private BindingList<Cat> catsBinding = new BindingList<Cat>();
 
         public MainForm()
         {
             InitializeComponent();
+            SetupDataGridView();
 
-            // подключаем обработчики кнопок
+            // Подписываем обработчики на UI события
             HookEvents();
+        }
 
-            // DataGridView
+        // Реализация IView.SetController
+        public void SetController(CatController controller)
+        {
+            _controller = controller;
+        }
+
+        private void HookEvents()
+        {
+            // В MVC: View напрямую вызывает методы Controller
+
+            buttonAdd.Click += (s, e) =>
+            {
+                var input = GetCatInput();
+                if (!string.IsNullOrWhiteSpace(input.name))
+                {
+                    _controller?.AddCat(input.name, input.breed, input.age);
+                }
+            };
+
+            buttonEdit.Click += (s, e) =>
+            {
+                int id = GetSelectedCatId();
+                _controller?.EditCat(id);
+            };
+
+            buttonDelete.Click += (s, e) =>
+            {
+                int id = GetSelectedCatId();
+                _controller?.DeleteCat(id);
+            };
+
+            buttonRefresh.Click += (s, e) => _controller?.LoadCats();
+
+            buttonNext.Click += (s, e) => _controller?.NextPage();
+            buttonPrev.Click += (s, e) => _controller?.PrevPage();
+
+            comboBoxPageSize.SelectedIndexChanged += (s, e) =>
+            {
+                int size = GetPageSize();
+                _controller?.ChangePageSize(size);
+            };
+
+            dataGridViewCats.CellDoubleClick += (s, e) =>
+            {
+                int id = GetSelectedCatId();
+                _controller?.EditCat(id);
+            };
+        }
+
+        private void SetupDataGridView()
+        {
             dataGridViewCats.AutoGenerateColumns = true;
             dataGridViewCats.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewCats.ReadOnly = true;
             dataGridViewCats.AllowUserToAddRows = false;
         }
 
-        private void HookEvents()
-        {
-            buttonAdd.Click += (s, e) => AddCatClicked?.Invoke();
-            buttonEdit.Click += (s, e) => EditCatClicked?.Invoke();
-            buttonDelete.Click += (s, e) => DeleteCatClicked?.Invoke();
-            buttonRefresh.Click += (s, e) => RefreshClicked?.Invoke();
-            buttonStats.Click += (s, e) => StatsCat?.Invoke();
-
-            buttonNext.Click += (s, e) => NextPageClicked?.Invoke();
-            buttonPrev.Click += (s, e) => PrevPageClicked?.Invoke();
-
-            comboBoxPageSize.SelectedIndexChanged += (s, e) => PageSizeChanged?.Invoke();
-
-            dataGridViewCats.CellDoubleClick += (s, e) => EditCatClicked?.Invoke();
-        }
-
-        //Методы IView
-
+        // Реализация методов IView
         public void ShowCats(IEnumerable<Cat> cats)
         {
             catsBinding = new BindingList<Cat>(new List<Cat>(cats));
@@ -65,6 +90,16 @@ namespace WinFormCatShelter
         public void ShowMessage(string message)
         {
             MessageBox.Show(message);
+        }
+
+        public (string name, string breed, int age) GetCatInput()
+        {
+            var form = new AddCatForm();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                return (form.NewCat.Name, form.NewCat.Breed, form.NewCat.Age);
+            }
+            return (null, null, -1);
         }
 
         public int GetSelectedCatId()
@@ -78,32 +113,13 @@ namespace WinFormCatShelter
             return -1;
         }
 
-        public void GetCatInput(out string name, out string breed, out int age)
-        {
-            var form = new AddCatForm();
-
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                name = form.NewCat.Name;
-                breed = form.NewCat.Breed;
-                age = form.NewCat.Age;
-            }
-            else
-            {
-                name = breed = "";
-                age = 0;
-            }
-        }
-
         public (string name, string breed, int age) GetUpdatedCatData(Cat cat)
         {
             var form = new EditCatForm(cat);
-
             if (form.ShowDialog() == DialogResult.OK)
             {
                 return (form.UpdatedCat.Name, form.UpdatedCat.Breed, form.UpdatedCat.Age);
             }
-
             return (null, null, -1);
         }
 
@@ -117,11 +133,16 @@ namespace WinFormCatShelter
             labelTotal.Text = $"Всего котов: {totalCount}";
         }
 
+        public bool ConfirmDelete()
+        {
+            var result = MessageBox.Show("Удалить кота?", "Подтверждение", MessageBoxButtons.YesNo);
+            return result == DialogResult.Yes;
+        }
+
         public int GetPageSize()
         {
             if (int.TryParse(comboBoxPageSize.SelectedItem?.ToString(), out int value))
                 return value;
-
             return 5;
         }
 
@@ -133,13 +154,6 @@ namespace WinFormCatShelter
         public void SetNextButtonEnabled(bool enabled)
         {
             buttonNext.Enabled = enabled;
-        }
-        public bool DeleteOrNotDelete()
-        {
-            var result = MessageBox.Show("Удалить кота?", "Подтверждение", MessageBoxButtons.YesNo);
-            if (result != DialogResult.Yes) return false;
-            if (result == DialogResult.Yes) return true;
-            return false;
         }
     }
 }

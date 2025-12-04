@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormCatShelter", "WinFor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{1CD931F5-1470-4453-8FEA-F7F2CF605BC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presenter", "Presenter\Presenter.csproj", "{98088F66-E6F2-4195-9F85-BACAABEFC7A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatController", "Presenter\CatController.csproj", "{98088F66-E6F2-4195-9F85-BACAABEFC7A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

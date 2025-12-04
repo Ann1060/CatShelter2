@@ -168,9 +168,9 @@
       <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
       <Name>CatShelterDaL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Presenter\Presenter.csproj">
+    <ProjectReference Include="..\Presenter\CatController.csproj">
       <Project>{98088f66-e6f2-4195-9f85-bacaabefc7a9}</Project>
-      <Name>Presenter</Name>
+      <Name>CatController</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{1cd931f5-1470-4453-8fea-f7f2cf605bc5}</Project>
