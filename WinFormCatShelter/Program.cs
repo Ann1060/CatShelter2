@@ -2,9 +2,8 @@
 using System.Windows.Forms;
 using BisnessLogic;
 using CatShelter.Shared;
-using CatShelter.Presenter;
+using CatShelter.Controller;
 using CatShelterDaL;
-
 
 namespace WinFormCatShelter
 {
@@ -16,10 +15,18 @@ namespace WinFormCatShelter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var repository = new CatRepository(); // из CatShelterDaL
+            // 1. Создаем Model (бизнес-логика)
+            var repository = new CatRepository();
             IModel model = new CatService(repository);
-            MainForm view = new MainForm();   // она реализует IView
-            var presenter = new Presenter(view, model); // связываем
+
+            // 2. Создаем Controller
+            var controller = new CatController(model);
+
+            // 3. Создаем View
+            MainForm view = new MainForm();
+
+            // 4. Регистрируем View в Controller (в MVC View знает о Controller)
+            controller.RegisterView(view);
 
             Application.Run(view);
         }

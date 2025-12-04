@@ -1,41 +1,29 @@
-﻿using CatEntity;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using CatEntity;
+using CatShelter.CatController;
 
 namespace CatShelter.Shared
 {
     public interface IView
     {
-        // События, которые View поднимает и на которые подписывается Presenter
-        event Action AddCatClicked;
-        event Action EditCatClicked;
-        event Action DeleteCatClicked;
-        event Action RefreshClicked;
-        event Action StatsCat;
-        event Action NextPageClicked;
-        event Action PrevPageClicked;
-        event Action PageSizeChanged;
+        // УБИРАЕМ ВСЕ СОБЫТИЯ - в MVC View напрямую вызывает Controller
 
-        // Методы для отображения/взаимодействия, которые Presenter вызывает у View
+        // Добавляем метод для установки Controller
+        void SetController(CatController controller);
+
+        // Методы для отображения (вызываются Controller'ом)
         void ShowCats(IEnumerable<Cat> cats);
         void ShowMessage(string message);
-
-        // Получить ID выделённого кота (для редактирования/удаления)
-        int GetSelectedCatId();
-
-        // Получить ввод пользователя для добавления кота (может вызывать форму AddCatForm)
-        void GetCatInput(out string name, out string breed, out int age);
-
-        // Получить обновлённые данные для существующего кота (может вызывать EditCatForm)
-        // Возвращаемый кортеж: (name, breed, age). Если пользователь отменил — name == null.
-        (string name, string breed, int age) GetUpdatedCatData(Cat cat);
-
-        // Пагинация и служебные методы
         void UpdatePageInfo(int currentPage, int totalPages);
         void UpdateTotalLabel(int totalCount);
-        int GetPageSize();
         void SetPrevButtonEnabled(bool enabled);
         void SetNextButtonEnabled(bool enabled);
-        bool DeleteOrNotDelete();
+
+        // Методы для получения данных от пользователя
+        int GetSelectedCatId();
+        (string name, string breed, int age) GetCatInput();
+        (string name, string breed, int age) GetUpdatedCatData(Cat cat);
+        bool ConfirmDelete();
+        int GetPageSize();
     }
 }
