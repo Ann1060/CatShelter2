@@ -17,7 +17,7 @@
 
         <!-- ТАБЛИЦА С КОТАМИ -->
         <DataGrid Grid.Row="1" 
-                  ItemsSource="{Binding Cats}" 
+                  ItemsSource="{Binding Cats}"
                   SelectedItem="{Binding SelectedCat}"
                   AutoGenerateColumns="False"
                   Margin="10"

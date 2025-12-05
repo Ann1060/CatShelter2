@@ -150,7 +150,7 @@ namespace CatShelter.Presenter
                     Age = SelectedCat.Age,
                     Breed = SelectedCat.Breed
                 };
-                _viewManager.ShowEditCatDialog(this); // ИСПРАВЛЕНО - вызываем Edit диалог
+                _viewManager.ShowEditCatDialog(this);
             }
         }
 
