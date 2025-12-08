@@ -44,6 +44,9 @@
             <Button Content="Статистика" 
                     Command="{Binding ShowStatisticsCommand}"
                     Margin="5" Padding="15,5"/>
+            <Button Content="Экспортировать данные" 
+                    Command="{Binding OpenExportDialogCommand}"
+                    Width="147" Height="28"/>
         </StackPanel>
     </Grid>
 </Window>

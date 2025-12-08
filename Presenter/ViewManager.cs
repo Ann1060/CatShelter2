@@ -21,5 +21,11 @@ namespace Presenter
 
         public abstract bool? ShowStatisticsDialog(MainViewModel mainViewModel);
         public abstract bool? CloseStatisticsDialog();
+        // Новые методы для экспорта
+        public abstract bool? ShowExportDialog(MainViewModel viewModel);
+        public abstract void CloseExportDialog();
+        public abstract string ShowSaveFileDialog(string filter, string defaultExt, string fileName, string initialDirectory);
+        public abstract void ShowMessage(string message);
+        public abstract bool ShowConfirmationDialog(string message);
     }
 }

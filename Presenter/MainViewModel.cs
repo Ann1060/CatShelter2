@@ -3,10 +3,13 @@ using CatShelter.Shared;
 using CatShelterDaL;
 using Presenter;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CatShelter.Presenter
@@ -17,6 +20,7 @@ namespace CatShelter.Presenter
         private readonly ViewManager _viewManager;
         private ObservableCollection<CatDTO> _cats;
         private CatDTO _selectedCat;
+        private List<Cat> _catsToExport; // Данные для экспорта
 
         public ObservableCollection<CatDTO> Cats
         {
@@ -42,6 +46,10 @@ namespace CatShelter.Presenter
         public RelayCommand CancelEditCommand { get; }
         public RelayCommand ShowStatisticsCommand { get; }
         public RelayCommand CloseStatisticsCommand { get; }
+        public RelayCommand BrowseCommand { get; }
+        public RelayCommand ExportCommand { get; }
+        public RelayCommand CancelCommand { get; }
+        public RelayCommand OpenExportDialogCommand { get; }
 
         // Свойства для форм
         public string Name { get; set; }
@@ -69,6 +77,11 @@ namespace CatShelter.Presenter
             CancelEditCommand = new RelayCommand(ExecuteCancelEdit);
             ShowStatisticsCommand = new RelayCommand(ExecuteShowStatistics);
             CloseStatisticsCommand = new RelayCommand(ExecuteCloseStatistics);
+            // Новые методы для экспорта
+            OpenExportDialogCommand = new RelayCommand(ExecuteOpenExportDialog);
+            BrowseCommand = new RelayCommand(ExecuteBrowse);
+            ExportCommand = new RelayCommand(ExecuteExport);
+            CancelCommand = new RelayCommand(ExecuteCancel);
         }
 
         private void LoadCat()
@@ -221,6 +234,283 @@ namespace CatShelter.Presenter
                 default:
                     return "котов";
             }
+        }
+
+        //Экспорт данных в json или csv
+        private string _selectedFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private string _fileName = $"cats_export_{DateTime.Now:yyyyMMdd}";
+        private string _selectedFormat = "JSON";
+        private bool _isExporting;
+        private string _statusMessage = "Готово к экспорту";
+
+        public string SelectedFolder
+        {
+            get => _selectedFolder;
+            set => SetField(ref _selectedFolder, value);
+        }
+
+        public string FileName
+        {
+            get => _fileName;
+            set => SetField(ref _fileName, value);
+        }
+
+        public string SelectedFormat
+        {
+            get => _selectedFormat;
+            set => SetField(ref _selectedFormat, value);
+        }
+
+        public bool IsExporting
+        {
+            get => _isExporting;
+            set => SetField(ref _isExporting, value);
+        }
+
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set => SetField(ref _statusMessage, value);
+        }
+
+        public string FullPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(SelectedFolder) || string.IsNullOrEmpty(FileName))
+                    return "Не выбран путь или имя файла";
+
+                string extension = SelectedFormat == "JSON" ? ".json" : ".csv";
+                string name = FileName.EndsWith(extension) ? FileName : FileName + extension;
+
+                return Path.Combine(SelectedFolder, name);
+            }
+        }
+
+        public ObservableCollection<string> Formats { get; } = new ObservableCollection<string>
+        {
+            "JSON",
+            "CSV"
+        };
+
+        private void ExecuteOpenExportDialog()
+        {
+            // Получаем данные
+            List<Cat> cats = _model.GetAllCats();
+
+            if (cats == null || cats.Count == 0)
+            {
+                _viewManager.ShowMessage("Нет данных для экспорта");
+                return;
+            }
+            _viewManager.ShowExportDialog(this);
+        }
+
+        private void ExecuteBrowse()
+        {
+            string filter = SelectedFormat == "JSON"
+                ? "JSON файлы (*.json)|*.json"
+                : "CSV файлы (*.csv)|*.csv";
+
+            string defaultExt = SelectedFormat == "JSON" ? ".json" : ".csv";
+
+            string filePath = _viewManager.ShowSaveFileDialog(filter, defaultExt, FileName, SelectedFolder);
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                // Обрабатываем выбранный файл
+                SelectedFolder = Path.GetDirectoryName(filePath);
+                FileName = Path.GetFileNameWithoutExtension(filePath);
+
+                // Автоматически выбираем формат по расширению
+                string extension = Path.GetExtension(filePath).ToUpper();
+                SelectedFormat = extension == ".JSON" ? "JSON" : "CSV";
+            }
+        }
+
+        private async void ExecuteExport()
+        {
+            if (string.IsNullOrEmpty(SelectedFolder) || string.IsNullOrEmpty(FileName))
+            {
+                _viewManager.ShowMessage("Заполните все поля");
+                return;
+            }
+
+            try
+            {
+                IsExporting = true;
+                StatusMessage = "Подготовка данных...";
+
+                string fullPath = FullPath;
+
+                // Проверяем существование файла
+                if (File.Exists(fullPath))
+                {
+                    bool overwrite = _viewManager.ShowConfirmationDialog(
+                        $"Файл '{Path.GetFileName(fullPath)}' уже существует. Перезаписать?");
+
+                    if (!overwrite)
+                    {
+                        StatusMessage = "Экспорт отменен";
+                        IsExporting = false;
+                        return;
+                    }
+                }
+
+                StatusMessage = "Получение данных из базы...";
+
+                // Получаем данные для экспорта
+                List<Cat> cats;
+                if (_catsToExport != null)
+                {
+                    cats = _catsToExport;
+                }
+                else if (_model != null)
+                {
+                    // Получаем всех котиков из модели
+                    cats = _model.GetAllCats(); // Нужно реализовать этот метод
+                }
+                else
+                {
+                    _viewManager.ShowMessage("Нет данных для экспорта");
+                    IsExporting = false;
+                    return;
+                }
+
+                if (cats == null || cats.Count == 0)
+                {
+                    _viewManager.ShowMessage("Нет данных для экспорта");
+                    IsExporting = false;
+                    return;
+                }
+
+                StatusMessage = $"Экспорт {cats.Count} записей...";
+
+                // Экспортируем в выбранном формате
+                bool exportSuccess = await Task.Run(() =>
+                {
+                    try
+                    {
+                        if (SelectedFormat == "JSON")
+                        {
+                            ExportToJson(cats, fullPath);
+                        }
+                        else
+                        {
+                            ExportToCsv(cats, fullPath);
+                        }
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        _viewManager.ShowMessage($"Ошибка при сохранении файла: {ex.Message}");
+                        return false;
+                    }
+                });
+
+                if (exportSuccess)
+                {
+                    StatusMessage = $"✅ Экспорт завершен!\nСохранено: {cats.Count} записей";
+
+                    // Спрашиваем, открыть ли папку
+                    bool openFolder = _viewManager.ShowConfirmationDialog(
+                        $"Экспортировано {cats.Count} записей.\nХотите открыть папку с файлом?");
+
+                    if (openFolder)
+                    {
+                        OpenFolderWithFile(fullPath);
+                    }
+
+                    // Закрываем окно через 2 секунды
+                    await Task.Delay(2000);
+                    _viewManager.CloseExportDialog();
+                }
+                else
+                {
+                    StatusMessage = "❌ Ошибка экспорта";
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"❌ Ошибка";
+                _viewManager.ShowMessage($"Ошибка при экспорте: {ex.Message}");
+            }
+            finally
+            {
+                IsExporting = false;
+            }
+        }
+
+        private void ExportToJson(List<Cat> cats, string filePath)
+        {
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            string json = System.Text.Json.JsonSerializer.Serialize(cats, options);
+            File.WriteAllText(filePath, json);
+        }
+
+        private void ExportToCsv(List<Cat> cats, string filePath)
+        {
+            using (var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
+            {
+                // Заголовки
+                writer.WriteLine("Id,Name,Age,Breed,IsVaccinated");
+
+                // Данные
+                foreach (var cat in cats)
+                {
+                    // Экранируем кавычки и запятые
+                    string name = EscapeCsvField(cat.Name);
+                    string breed = EscapeCsvField(cat.Breed);
+
+                    writer.WriteLine($"{cat.Id},{name},{cat.Age},{breed}");
+                }
+            }
+        }
+
+        private string EscapeCsvField(string field)
+        {
+            if (string.IsNullOrEmpty(field))
+                return "";
+
+            // Если поле содержит запятые, кавычки или переносы строк - заключаем в кавычки
+            if (field.Contains(",") || field.Contains("\"") || field.Contains("\n"))
+            {
+                field = field.Replace("\"", "\"\"");
+                return $"\"{field}\"";
+            }
+
+            return field;
+        }
+
+        private void OpenFolderWithFile(string filePath)
+        {
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    // Открываем папку и выделяем файл
+                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+                }
+                else
+                {
+                    // Просто открываем папку
+                    System.Diagnostics.Process.Start("explorer.exe", Path.GetDirectoryName(filePath));
+                }
+            }
+            catch (Exception ex)
+            {
+                _viewManager.ShowMessage($"Не удалось открыть папку: {ex.Message}");
+            }
+        }
+
+        private void ExecuteCancel()
+        {
+            _viewManager.CloseExportDialog();
         }
     }
 }

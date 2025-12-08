@@ -9,6 +9,7 @@ namespace CatShelterWPF
         EditCatView editView;
         DeleteConfirmView deleteView;
         StatisticsView statsView;
+        ExportView exportView;
         public override bool? ShowAddCatDialog(MainViewModel mainViewModel)
         {
             addView = new AddCatView(mainViewModel);
@@ -51,6 +52,45 @@ namespace CatShelterWPF
         public override bool? CloseStatisticsDialog()
         {
             return statsView.DialogResult = true;
+        }
+
+        public override bool? ShowExportDialog(MainViewModel mainViewModel)
+        {
+            exportView = new ExportView(mainViewModel);
+            exportView.Owner = Application.Current.MainWindow;
+            return exportView.ShowDialog();
+        }
+
+        public override void CloseExportDialog()
+        {
+            exportView?.Close();
+        }
+
+        public override string ShowSaveFileDialog(string filter, string defaultExt, string fileName, string initialDirectory)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = filter,
+                DefaultExt = defaultExt,
+                FileName = fileName,
+                InitialDirectory = initialDirectory,
+                Title = "Сохранить файл",
+                OverwritePrompt = true
+            };
+
+            return dialog.ShowDialog() == true ? dialog.FileName : null;
+        }
+
+        public override void ShowMessage(string message)
+        {
+            MessageBox.Show(message, "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        public override bool ShowConfirmationDialog(string message)
+        {
+            var result = MessageBox.Show(message, "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            return result == MessageBoxResult.Yes;
         }
     }
 }
