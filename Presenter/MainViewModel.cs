@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Input;
 
 namespace CatShelter.Presenter
@@ -21,6 +22,7 @@ namespace CatShelter.Presenter
         private ObservableCollection<CatDTO> _cats;
         private CatDTO _selectedCat;
         private List<Cat> _catsToExport; // Данные для экспорта
+        private Timer timer;
 
         public ObservableCollection<CatDTO> Cats
         {
@@ -59,6 +61,9 @@ namespace CatShelter.Presenter
         public string DeleteQuestion { get; set; }
         public string StatisticsText { get; set; }
 
+        //Событие для обновление шкалы голода
+        public event EventHandler HungerUpdated;
+
         public MainViewModel(IModel model, ViewManager viewManager)
         {
             _model = model;
@@ -82,11 +87,26 @@ namespace CatShelter.Presenter
             BrowseCommand = new RelayCommand(ExecuteBrowse);
             ExportCommand = new RelayCommand(ExecuteExport);
             CancelCommand = new RelayCommand(ExecuteCancel);
+            // Событие для кормления
+            HungerUpdated += UpdateHunger;
+            //Таймер для обновления шкалы голода
+            timer = new Timer(1000);
+            timer.Elapsed += (s, e) => HungerUpdated?.Invoke(this, EventArgs.Empty);
+            timer.AutoReset = true;
+            timer.Enabled = true;
+
+        }
+
+        private void MainViewModel_HungerUpdated(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void LoadCat()
         {
             var catsFromDb = _model.GetAllCats();
+
+            // Создаем новую коллекцию
             Cats = new ObservableCollection<CatDTO>(
                 catsFromDb.Select(c => new CatDTO
                 {
@@ -94,9 +114,10 @@ namespace CatShelter.Presenter
                     Name = c.Name,
                     Breed = c.Breed,
                     Age = c.Age,
+                    LastFeeding = c.LastFeeding,
+                    HungryLevel = c.HungryLevel
                 })
             );
-
         }
 
         // ФОРМА ДОБАВЛЕНИЯ
@@ -511,6 +532,33 @@ namespace CatShelter.Presenter
         private void ExecuteCancel()
         {
             _viewManager.CloseExportDialog();
+        }
+
+        // Метод чтобы покормить кота
+        public void FeedCat ()
+        {
+            _selectedCat.LastFeeding = DateTime.Now;
+            _selectedCat.HungryLevel = 100.0;
+            var cat = new CatDTO
+            {
+                Id = SelectedCat.Id,
+                Name = SelectedCat.Name,
+                Age = SelectedCat.Age,
+                Breed = SelectedCat.Breed,
+                LastFeeding = DateTime.Now,
+                HungryLevel = 100.0
+            };
+            _model.UpdateCat(cat.ToDomainModel());
+            HungerUpdated?.Invoke(this, EventArgs.Empty);
+        }
+        public void UpdateHunger(object sender, EventArgs e)
+        {
+            foreach (var cat in Cats)
+            {
+                var hoursSinceFed = (DateTime.Now - cat.LastFeeding).TotalHours;
+                cat.HungryLevel = Math.Max(0, 100 - (hoursSinceFed * (100.0 / 3.0)));
+
+            }
         }
     }
 }

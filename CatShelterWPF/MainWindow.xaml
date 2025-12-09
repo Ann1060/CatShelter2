@@ -1,8 +1,9 @@
 ﻿<Window x:Class="CatShelterWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Cat Shelter" Height="450" Width="800">
-
+        x:Name="CatsDataGrid"
+        Title="Cat Shelter" Height="450" Width="800"
+        xmlns:local="clr-namespace:CatShelterWPF">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -27,6 +28,24 @@
                 <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="150"/>
                 <DataGridTextColumn Header="Возраст" Binding="{Binding Age}" Width="80"/>
                 <DataGridTextColumn Header="Порода" Binding="{Binding Breed}" Width="150"/>
+                <!-- Шкала голода -->
+                <DataGridTemplateColumn Header="Сытость" Width="103">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <!-- Grid может содержать несколько элементов -->
+                            <Grid>
+                                <!-- Фон -->
+                                <Border BorderBrush="Gray" BorderThickness="1" Background="LightGray"/>
+
+                                <!-- Заполнение -->
+                                <Border Width="{Binding HungryLevel}" 
+                                Background="Black"
+                                HorizontalAlignment="Left"/>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
             </DataGrid.Columns>
         </DataGrid>
 

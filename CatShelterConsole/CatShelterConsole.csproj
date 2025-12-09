@@ -144,6 +144,10 @@
       <Project>{09875e91-3c66-40a0-a9ea-cab1715f1791}</Project>
       <Name>CatEntity</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CatShelterDaL\CatShelterDaL.csproj">
+      <Project>{b4ee9aa5-a1fa-4e63-9dab-01ec480b4490}</Project>
+      <Name>CatShelterDaL</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Start\" />

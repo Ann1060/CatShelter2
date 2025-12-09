@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CatShelter.Presenter;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +25,15 @@ namespace CatShelterWPF
         public MainWindow()
         {
             InitializeComponent();
+            CatsDataGrid.MouseDoubleClick += CatsDataGrid_MouseDoubleClick;
+        }
+
+        private void CatsDataGrid_MouseDoubleClick(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                viewModel.FeedCat();
+            }
         }
     }
 }

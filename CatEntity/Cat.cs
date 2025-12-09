@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Timers;
 
 namespace CatEntity
 {
@@ -19,5 +20,7 @@ namespace CatEntity
         public string Name { get; set; }
         public string Breed { get; set; }
         public int Age { get; set; }
+        public DateTime LastFeeding { get; set; } = DateTime.Today.AddDays(-1);
+        public double HungryLevel { get; set; } = 0.0;
     }
 }

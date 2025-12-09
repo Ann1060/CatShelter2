@@ -15,6 +15,8 @@ namespace CatShelter.Presenter
         private string name;
         private string breed;
         private int age;
+        private DateTime lastFeeding;
+        private double hungryLevel = 0.0;
 
         public int Id
         {
@@ -39,6 +41,16 @@ namespace CatShelter.Presenter
             get => age;
             set { age = value; OnPropertyChanged(); }
         }
+        public DateTime LastFeeding
+        {
+            get => lastFeeding;
+            set { lastFeeding = value; OnPropertyChanged(); }
+        }
+        public double HungryLevel
+        {
+            get => hungryLevel;
+            set { hungryLevel = value; OnPropertyChanged(); }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -53,7 +65,9 @@ namespace CatShelter.Presenter
                 Id = this.Id,
                 Name = this.Name,
                 Breed = this.Breed,
-                Age = this.Age
+                Age = this.Age,
+                LastFeeding = this.LastFeeding,
+                HungryLevel = this.HungryLevel
             };
         }
 
@@ -64,7 +78,9 @@ namespace CatShelter.Presenter
                 Id = cat.Id,
                 Name = cat.Name,
                 Breed = cat.Breed,
-                Age = cat.Age
+                Age = cat.Age,
+                LastFeeding = cat.LastFeeding,
+                HungryLevel= cat.HungryLevel
             };
         }
     }

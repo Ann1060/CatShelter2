@@ -1,5 +1,8 @@
-﻿using System.Windows;
-using CatShelter.Presenter;
+﻿using CatShelter.Presenter;
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
 
 namespace CatShelterWPF
 {
@@ -91,6 +94,31 @@ namespace CatShelterWPF
             var result = MessageBox.Show(message, "Подтверждение",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             return result == MessageBoxResult.Yes;
+        }
+    }
+    public class HungerToWidthConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                double currentHunger = System.Convert.ToDouble(value);
+
+                double totalWidth = 148; // 150 - 2px рамки
+
+                double width = totalWidth * (currentHunger / 100.0);
+
+                return Math.Max(0, Math.Min(totalWidth, width));
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }
