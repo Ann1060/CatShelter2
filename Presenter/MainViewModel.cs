@@ -479,7 +479,7 @@ namespace CatShelter.Presenter
             using (var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
             {
                 // Заголовки
-                writer.WriteLine("Id,Name,Age,Breed,IsVaccinated");
+                writer.WriteLine("Id,Name,Age,Breed,LastFeeding,HungryLevel");
 
                 // Данные
                 foreach (var cat in cats)
@@ -487,8 +487,10 @@ namespace CatShelter.Presenter
                     // Экранируем кавычки и запятые
                     string name = EscapeCsvField(cat.Name);
                     string breed = EscapeCsvField(cat.Breed);
+                    string lastFeeding = FormatDateTimeForCsv(cat.LastFeeding);
+                    string hungryLevel = FormatDoubleForCsv(cat.HungryLevel);
 
-                    writer.WriteLine($"{cat.Id},{name},{cat.Age},{breed}");
+                    writer.WriteLine($"{cat.Id},{name},{cat.Age},{breed},{lastFeeding},{hungryLevel}");
                 }
             }
         }
@@ -506,6 +508,15 @@ namespace CatShelter.Presenter
             }
 
             return field;
+        }
+
+        private string FormatDateTimeForCsv(DateTime dateTime)
+        {
+            return dateTime.ToString();
+        }
+        private string FormatDoubleForCsv(double value)
+        {
+            return value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         private void OpenFolderWithFile(string filePath)
@@ -534,7 +545,7 @@ namespace CatShelter.Presenter
             _viewManager.CloseExportDialog();
         }
 
-        // Метод чтобы покормить кота
+        // Методы чтобы покормить кота
         public void FeedCat ()
         {
             _selectedCat.LastFeeding = DateTime.Now;
@@ -557,6 +568,7 @@ namespace CatShelter.Presenter
             {
                 var hoursSinceFed = (DateTime.Now - cat.LastFeeding).TotalHours;
                 cat.HungryLevel = Math.Max(0, 100 - (hoursSinceFed * (100.0 / 3.0)));
+                _model.UpdateCat(cat.ToDomainModel());
 
             }
         }
