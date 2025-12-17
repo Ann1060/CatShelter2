@@ -497,7 +497,7 @@ namespace CatShelter.Presenter
             using (var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
             {
                 // Заголовки
-                writer.WriteLine("Id,Name,Age,Breed,LastFeeding,HungryLevel");
+                writer.WriteLine("Id,Name,Age,Breed,LastFeeding,HungryLevel,LastPetTime,IsPet");
 
                 // Данные
                 foreach (var cat in cats)
@@ -507,8 +507,10 @@ namespace CatShelter.Presenter
                     string breed = EscapeCsvField(cat.Breed);
                     string lastFeeding = FormatDateTimeForCsv(cat.LastFeeding);
                     string hungryLevel = FormatDoubleForCsv(cat.HungryLevel);
+                    string lastPetTime = FormatDateTimeForCsv(cat.LastPetTime);
+                    string isPet = cat.IsPet.ToString();
 
-                    writer.WriteLine($"{cat.Id},{name},{cat.Age},{breed},{lastFeeding},{hungryLevel}");
+                    writer.WriteLine($"{cat.Id}, {name}, {cat.Age}, {breed}, {lastFeeding}, {hungryLevel}, {lastPetTime}, {isPet}");
                 }
             }
         }
@@ -597,7 +599,7 @@ namespace CatShelter.Presenter
         {
             foreach (var cat in Cats)
             {
-                if ((DateTime.Now - cat.LastPetTime).TotalMinutes >= 10000)
+                if ((DateTime.Now - cat.LastPetTime).TotalSeconds >= 86400)
                 {
                     cat.IsPet = false;
                     _model.UpdateCat(cat.ToDomainModel());
