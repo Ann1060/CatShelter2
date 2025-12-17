@@ -22,5 +22,7 @@ namespace CatEntity
         public int Age { get; set; }
         public DateTime LastFeeding { get; set; } = DateTime.Today.AddDays(-1);
         public double HungryLevel { get; set; } = 0.0;
+        public DateTime LastPetTime { get; set; } = DateTime.Today.AddDays(-1);
+        public bool IsPet { get; set; } = false;
     }
 }

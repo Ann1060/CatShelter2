@@ -45,7 +45,34 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-
+                <DataGridTemplateColumn Header="Погладить" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.StrokeCatCommand, 
+                    RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                    CommandParameter="{Binding}"
+                    Margin="2"
+                    Padding="10,3"
+                    HorizontalAlignment="Center"
+                    MinWidth="100">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Content" Value="Погладить кота"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPet}" Value="True">
+                                                <Setter Property="Content" Value="Кот поглажен ✓"/>
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                                <Setter Property="Background" Value="LightGreen"/>
+                                                <Setter Property="Foreground" Value="DarkGreen"/>
+                                                <Setter Property="Cursor" Value="Arrow"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 

@@ -23,6 +23,7 @@ namespace CatShelter.Presenter
         private CatDTO _selectedCat;
         private List<Cat> _catsToExport; // Данные для экспорта
         private Timer timer;
+        private Timer timerStroke;
 
         public ObservableCollection<CatDTO> Cats
         {
@@ -52,6 +53,7 @@ namespace CatShelter.Presenter
         public RelayCommand ExportCommand { get; }
         public RelayCommand CancelCommand { get; }
         public RelayCommand OpenExportDialogCommand { get; }
+        public RelayCommand StrokeCatCommand { get; }
 
         // Свойства для форм
         public string Name { get; set; }
@@ -63,6 +65,7 @@ namespace CatShelter.Presenter
 
         //Событие для обновление шкалы голода
         public event EventHandler HungerUpdated;
+        public event EventHandler StrokeUpdate;
 
         public MainViewModel(IModel model, ViewManager viewManager)
         {
@@ -82,19 +85,24 @@ namespace CatShelter.Presenter
             CancelEditCommand = new RelayCommand(ExecuteCancelEdit);
             ShowStatisticsCommand = new RelayCommand(ExecuteShowStatistics);
             CloseStatisticsCommand = new RelayCommand(ExecuteCloseStatistics);
+            StrokeCatCommand = new RelayCommand(StrokeCat);
             // Новые методы для экспорта
             OpenExportDialogCommand = new RelayCommand(ExecuteOpenExportDialog);
             BrowseCommand = new RelayCommand(ExecuteBrowse);
             ExportCommand = new RelayCommand(ExecuteExport);
             CancelCommand = new RelayCommand(ExecuteCancel);
-            // Событие для кормления
+            // Подписки на события
             HungerUpdated += UpdateHunger;
+            StrokeUpdate += UpdateStroke;
             //Таймер для обновления шкалы голода
             timer = new Timer(1000);
             timer.Elapsed += (s, e) => HungerUpdated?.Invoke(this, EventArgs.Empty);
+            timerStroke = new Timer(1000);
+            timerStroke.Elapsed += (s, e) => StrokeUpdate?.Invoke(this, EventArgs.Empty);
             timer.AutoReset = true;
             timer.Enabled = true;
-
+            timerStroke.Enabled = true;
+            timerStroke.AutoReset = true;
         }
 
         private void MainViewModel_HungerUpdated(object sender, EventArgs e)
@@ -115,7 +123,9 @@ namespace CatShelter.Presenter
                     Breed = c.Breed,
                     Age = c.Age,
                     LastFeeding = c.LastFeeding,
-                    HungryLevel = c.HungryLevel
+                    HungryLevel = c.HungryLevel,
+                    LastPetTime = c.LastPetTime,
+                    IsPet = c.IsPet
                 })
             );
         }
@@ -182,7 +192,11 @@ namespace CatShelter.Presenter
                     Id = SelectedCat.Id,
                     Name = SelectedCat.Name,
                     Age = SelectedCat.Age,
-                    Breed = SelectedCat.Breed
+                    Breed = SelectedCat.Breed,
+                    HungryLevel = SelectedCat.HungryLevel,
+                    LastPetTime = SelectedCat.LastPetTime,
+                    LastFeeding = SelectedCat.LastFeeding,
+                    IsPet = SelectedCat.IsPet
                 };
                 _viewManager.ShowEditCatDialog(this);
             }
@@ -195,6 +209,10 @@ namespace CatShelter.Presenter
                 SelectedCat.Name = EditingCat.Name;
                 SelectedCat.Age = EditingCat.Age;
                 SelectedCat.Breed = EditingCat.Breed;
+                SelectedCat.HungryLevel = EditingCat.HungryLevel;
+                SelectedCat.LastPetTime = EditingCat.LastPetTime;
+                SelectedCat.LastFeeding = EditingCat.LastFeeding;
+                SelectedCat.IsPet = EditingCat.IsPet;
                 _model.UpdateCat(SelectedCat.ToDomainModel());
                 LoadCat();
             }
@@ -389,7 +407,7 @@ namespace CatShelter.Presenter
                 else if (_model != null)
                 {
                     // Получаем всех котиков из модели
-                    cats = _model.GetAllCats(); // Нужно реализовать этот метод
+                    cats = _model.GetAllCats();
                 }
                 else
                 {
@@ -556,6 +574,8 @@ namespace CatShelter.Presenter
                 Name = SelectedCat.Name,
                 Age = SelectedCat.Age,
                 Breed = SelectedCat.Breed,
+                LastPetTime = SelectedCat.LastPetTime,
+                IsPet = SelectedCat.IsPet,
                 LastFeeding = DateTime.Now,
                 HungryLevel = 100.0
             };
@@ -571,6 +591,37 @@ namespace CatShelter.Presenter
                 _model.UpdateCat(cat.ToDomainModel());
 
             }
+        }
+        //Методы для поглаживания
+        public void UpdateStroke(object sender, EventArgs e)
+        {
+            foreach (var cat in Cats)
+            {
+                if ((DateTime.Now - cat.LastPetTime).TotalMinutes >= 10000)
+                {
+                    cat.IsPet = false;
+                    _model.UpdateCat(cat.ToDomainModel());
+                }
+            }
+        }
+        public void StrokeCat()
+        {
+            _selectedCat.LastPetTime = DateTime.Now;
+            _selectedCat.IsPet = true;
+            var cat = new CatDTO
+            {
+                Id = SelectedCat.Id,
+                Name = SelectedCat.Name,
+                Age = SelectedCat.Age,
+                Breed = SelectedCat.Breed,
+                LastFeeding = SelectedCat.LastFeeding,
+                HungryLevel = SelectedCat.HungryLevel,
+                LastPetTime = DateTime.Now,
+                IsPet = true
+            };
+            _model.UpdateCat(cat.ToDomainModel());
+            StrokeUpdate?.Invoke(this, EventArgs.Empty);
+            LoadCat();
         }
     }
 }

@@ -15,8 +15,11 @@ namespace CatShelter.Presenter
         private string name;
         private string breed;
         private int age;
-        private DateTime lastFeeding;
+        private DateTime lastFeeding = DateTime.Today.AddDays(-1);
         private double hungryLevel = 0.0;
+        private DateTime lastPetTime = DateTime.Today.AddDays(-1);
+        private bool isPet = false;
+
 
         public int Id
         {
@@ -51,6 +54,16 @@ namespace CatShelter.Presenter
             get => hungryLevel;
             set { hungryLevel = value; OnPropertyChanged(); }
         }
+        public DateTime LastPetTime
+        {
+            get => lastPetTime;
+            set { lastPetTime = value; OnPropertyChanged(); }
+        }
+        public bool IsPet
+        {
+            get => isPet;
+            set { isPet = value; OnPropertyChanged(); }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -67,7 +80,9 @@ namespace CatShelter.Presenter
                 Breed = this.Breed,
                 Age = this.Age,
                 LastFeeding = this.LastFeeding,
-                HungryLevel = this.HungryLevel
+                HungryLevel = this.HungryLevel,
+                LastPetTime = this.LastPetTime,
+                IsPet = this.IsPet
             };
         }
 
@@ -80,7 +95,9 @@ namespace CatShelter.Presenter
                 Breed = cat.Breed,
                 Age = cat.Age,
                 LastFeeding = cat.LastFeeding,
-                HungryLevel= cat.HungryLevel
+                HungryLevel= cat.HungryLevel,
+                LastPetTime= cat.LastPetTime,
+                IsPet= cat.IsPet
             };
         }
     }

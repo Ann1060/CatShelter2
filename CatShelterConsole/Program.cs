@@ -43,8 +43,8 @@ namespace CatShelterConsole
             //        case "6": return;
             //    }
             //}
-            IRepository<Cat> repository = new EntityFrameworkRepository<Cat>();
-            var cats = repository.GetAll();
+            //IRepository<Cat> repository = new EntityFrameworkRepository<Cat>();
+            //var cats = repository.GetAll();
             //foreach (var c in cats)
             //{
             //    var cat = new Cat()
@@ -53,42 +53,44 @@ namespace CatShelterConsole
             //        Name = c.Name,
             //        Breed = c.Breed,
             //        Age = c.Age,
-            //        HungryLevel = 0.0,
-            //        LastFeeding = DateTime.Today.AddDays(-1)
+            //        HungryLevel = c.HungryLevel,
+            //        LastFeeding = c.LastFeeding,
+            //        LastPetTime = DateTime.Today.AddDays(-1),
+            //        IsPet = false
             //    };
             //    repository.Update(cat);
             //}
 
-            try
-            {
+            //try
+            //{
 
-                // ВЫВОД ДЛЯ ОТЛАДКИ
-                Console.WriteLine($"=== GetAllCats() ===");
-                Console.WriteLine($"Найдено в БД: {cats.Count} котов");
+            //    // ВЫВОД ДЛЯ ОТЛАДКИ
+            //    Console.WriteLine($"=== GetAllCats() ===");
+            //    Console.WriteLine($"Найдено в БД: {cats.Count} котов");
 
-                foreach (var cat in cats)
-                {
-                    Console.WriteLine($"Кот: {cat.Name}");
-                    Console.WriteLine($"  ID: {cat.Id}");
-                    Console.WriteLine($"  LastFeeding: {cat.LastFeeding}");
-                    Console.WriteLine($"  HungryLevel: {cat.HungryLevel}");
-                    Console.WriteLine($"  Hours since fed: {(DateTime.Now - cat.LastFeeding).TotalHours:F1}");
-                }
+            //    foreach (var cat in cats)
+            //    {
+            //        Console.WriteLine($"Кот: {cat.Name}");
+            //        Console.WriteLine($"  ID: {cat.Id}");
+            //        Console.WriteLine($"  LastFeeding: {cat.LastFeeding}");
+            //        Console.WriteLine($"  HungryLevel: {cat.HungryLevel}");
+            //        Console.WriteLine($"  Hours since fed: {(DateTime.Now - cat.LastFeeding).TotalHours:F1}");
+            //    }
 
-                //return cats.Select(c => new CatDTO
-                //{
-                //    Id = c.Id,
-                //    Name = c.Name,
-                //    Breed = c.Breed,
-                //    Age = c.Age,
-                //    LastFeeding = c.LastFeeding, // ← Убедитесь, что берется из БД!
-                //    HungryLevel = c.HungryLevel  // ← Убедитесь, что берется из БД!
-                //}).ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ОШИБКА GetAllCats: {ex.Message}");
-            }
+            //return cats.Select(c => new CatDTO
+            //{
+            //    Id = c.Id,
+            //    Name = c.Name,
+            //    Breed = c.Breed,
+            //    Age = c.Age,
+            //    LastFeeding = c.LastFeeding, // ← Убедитесь, что берется из БД!
+            //    HungryLevel = c.HungryLevel  // ← Убедитесь, что берется из БД!
+            //}).ToList();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"ОШИБКА GetAllCats: {ex.Message}");
+            //}
         }
 
         //static void ShowAllCats()
