@@ -65,7 +65,7 @@ namespace CatShelter.Presenter
 
         //Событие для обновление шкалы голода
         public event EventHandler HungerUpdated;
-        public event EventHandler StrokeUpdate;
+        //public event EventHandler StrokeUpdate;
 
         public MainViewModel(IModel model, ViewManager viewManager)
         {
@@ -93,16 +93,16 @@ namespace CatShelter.Presenter
             CancelCommand = new RelayCommand(ExecuteCancel);
             // Подписки на события
             HungerUpdated += UpdateHunger;
-            StrokeUpdate += UpdateStroke;
+            //StrokeUpdate += UpdateStroke;
             //Таймер для обновления шкалы голода
             timer = new Timer(1000);
             timer.Elapsed += (s, e) => HungerUpdated?.Invoke(this, EventArgs.Empty);
-            timerStroke = new Timer(1000);
-            timerStroke.Elapsed += (s, e) => StrokeUpdate?.Invoke(this, EventArgs.Empty);
+            //timerStroke = new Timer(1000);
+            //timerStroke.Elapsed += (s, e) => StrokeUpdate?.Invoke(this, EventArgs.Empty);
             timer.AutoReset = true;
             timer.Enabled = true;
-            timerStroke.Enabled = true;
-            timerStroke.AutoReset = true;
+            //timerStroke.Enabled = true;
+            //timerStroke.AutoReset = true;
         }
 
         private void MainViewModel_HungerUpdated(object sender, EventArgs e)
@@ -591,14 +591,6 @@ namespace CatShelter.Presenter
                 var hoursSinceFed = (DateTime.Now - cat.LastFeeding).TotalHours;
                 cat.HungryLevel = Math.Max(0, 100 - (hoursSinceFed * (100.0 / 3.0)));
                 _model.UpdateCat(cat.ToDomainModel());
-
-            }
-        }
-        //Методы для поглаживания
-        public void UpdateStroke(object sender, EventArgs e)
-        {
-            foreach (var cat in Cats)
-            {
                 if ((DateTime.Now - cat.LastPetTime).TotalSeconds >= 86400)
                 {
                     cat.IsPet = false;
@@ -606,6 +598,18 @@ namespace CatShelter.Presenter
                 }
             }
         }
+        //Методы для поглаживания
+        //public void UpdateStroke(object sender, EventArgs e)
+        //{
+        //    foreach (var cat in Cats)
+        //    {
+        //        if ((DateTime.Now - cat.LastPetTime).TotalSeconds >= 86400)
+        //        {
+        //            cat.IsPet = false;
+        //            _model.UpdateCat(cat.ToDomainModel());
+        //        }
+        //    }
+        //}
         public void StrokeCat()
         {
             _selectedCat.LastPetTime = DateTime.Now;
@@ -622,7 +626,7 @@ namespace CatShelter.Presenter
                 IsPet = true
             };
             _model.UpdateCat(cat.ToDomainModel());
-            StrokeUpdate?.Invoke(this, EventArgs.Empty);
+            //StrokeUpdate?.Invoke(this, EventArgs.Empty);
             LoadCat();
         }
     }
